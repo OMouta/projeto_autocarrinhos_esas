@@ -8,15 +8,10 @@
 
 using namespace std;
 
-struct templateautomoveis
-{
-    char matricula[8], marca[30], modelo[20], cor[15], ob[100];
-    int ano, mediacon;
-    float km;
-}c[4];
-
 int main()
 {
+    setlocale(LC_ALL, "Portuguese");
+
 
     return 0;
 }
