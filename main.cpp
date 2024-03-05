@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <conio.h>
 
+
 using namespace std;
 
 struct templateautomoveis
