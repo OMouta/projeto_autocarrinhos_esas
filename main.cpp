@@ -1,34 +1,11 @@
-#include <iostream>
-#include <locale.h>
-#include <windows.h>
-#include <stdlib.h>
-#include <time.h>
-#include <cstdio>
-#include <conio.h>
+#include <gtkmm.h>
 
-using namespace std;
-
-int main()
+int main(int argc, char** argv)
 {
-    setlocale(LC_ALL, "Portuguese");
-
-    cout << "                                                       AAAAAAAAAAAAAAAAAA                                            " << endl;
-    cout << "                                              AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA                               " << endl;
-    cout << "                                        AAAAAAAAAAAAAAA          AA      AAAAAAAAAAAAAAAAAAAA                        " << endl;
-    cout << "                                   AAAAAAAAAAA                   AA       AAAAAAAAAAAAAAAAAAAAAA                     " << endl;
-    cout << "                               AAAAAAAAA                        AA         AAAAAAAAAAAAAAAAAAAAAAAAAAAAA             " << endl;
-    cout << "                           AAAAAAAAA                       AAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAA            " << endl;
-    cout << "                 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA        A           " << endl;
-    cout << "           AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA     A            " << endl;
-    cout << "       AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA         AAAAAAAAAAAAAAAAAAA           " << endl;
-    cout << "     A     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA   AAAAAAA   AAAAAAAAAAAAAAAAA           " << endl;
-    cout << "   A      AAAAAAA            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA   AAA     AAA   AAAAAAAAAAAAAA            " << endl;
-    cout << "  AAAAAAAANAAAAA  AAAAAAAAAA  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  AA         AAA  AAAAAAAAAAAA             " << endl;
-    cout << "  AAAAAAAAAAAAA  AAA      AAA  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  AAA          AA  AAAAAAAAAAA              " << endl;
-    cout << "  AAAAAAAAAAAA  AAA        AAA  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  AAA         AAA  AAAAAAAA                 " << endl;
-    cout << "  AAAAAAAAAAAA  AAA        AAA  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA   AAA       AAA  AAA                       " << endl;
-    cout << "  AAAAAAAAAAAA   AA        AA   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA    AAAAAAAAAAA                             " << endl;
-    cout << "   AAAAAAAAAAAA   AAAAAAAAAA   AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA                                          " << endl;
-
-    return 0;
+        auto app = Gtk::Application::create(argc, argv);
+        
+        Gtk::Window window;
+        window.set_default_size(600,400);
+        
+        return app->run(window);
 }
