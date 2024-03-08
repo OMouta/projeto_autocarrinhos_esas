@@ -1,42 +1,81 @@
 #include <gtkmm.h>
 #include <glibmm.h>
 #include <windows.h>
+#include <string>
+#include <iostream>
 
 using namespace Gtk;
 using namespace std;
 
 int main(int argc, char** argv)
 {
-    auto app = Application::create(argc, argv);
+    auto app = Application::create(argc, argv, "org.autocarrinhos.esas");
+    auto settings = Gtk::Settings::get_default();
+
+    Glib::RefPtr<Gtk::CssProvider> cssProvider = Gtk::CssProvider::create();
+
+    if(!cssProvider->load_from_path("theme.css")) 
+    {
+        std::cerr << "Failed to load CSS file.\n";
+    } 
+    else 
+    {
+        Glib::RefPtr<Gdk::Screen> screen = Gdk::Screen::get_default();
+        Gtk::StyleContext::add_provider_for_screen(screen, cssProvider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+    }
+
+    settings->property_gtk_application_prefer_dark_theme() = true;
 
     Window appWindow;
-    appWindow.set_title("Autocarrinhos ESAS - Log In");
+    appWindow.set_title("Autocarrinhos ESAS");
     appWindow.set_default_size(1200, 700);
+    appWindow.set_position(WindowPosition::WIN_POS_CENTER);
+    appWindow.set_resizable(true);
 
-    Box Login;
-    Login.set_size_request(600, 350);
-    appWindow.add(Login);
+    Stack stack;
 
-    Grid LoginGrid;
-    LoginGrid.set_column_homogeneous(true);
-    LoginGrid.set_row_homogeneous(true);
-    LoginGrid.set_row_spacing(10);
-    LoginGrid.set_column_spacing(10);
-    Login.pack_start(LoginGrid);
+    //Log In
+    Box loginBox;
 
-    Entry utilizador;
-    utilizador.set_placeholder_text("Utilizador");
-    LoginGrid.attach(utilizador, 0, 0, 1, 1);
+    loginBox.set_spacing(10);
+    loginBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
+    loginBox.set_homogeneous(true);
 
-    Entry palavrapasse;
-    palavrapasse.set_placeholder_text("Palavra passe");
-    palavrapasse.set_visibility(false);
-    LoginGrid.attach(palavrapasse, 0, 1, 1, 1);
+    Label title("Entre na sua conta");
+    Entry usernameEntry, passwordEntry;
+    Button loginButton("Entrar"), registerButton("Registar");
 
-    Button loginButton("Login");
-    LoginGrid.attach(loginButton, 0, 2, 1, 1);
+    usernameEntry.set_size_request(70, 50);
+    passwordEntry.set_size_request(70, 50);
+    loginButton.set_size_request(70, 50);
+    registerButton.set_size_request(70, 50);
 
-    Login.show_all();
+    usernameEntry.set_placeholder_text("Utilizador");
+    passwordEntry.set_placeholder_text("Palavra-passe");
+    passwordEntry.set_visibility(false);
+
+    loginBox.pack_start(title, false, false, 0);
+    loginBox.pack_start(usernameEntry, false, false, 0);
+    loginBox.pack_start(passwordEntry, false, false, 0);
+    loginBox.pack_start(loginButton, false, false, 0);
+    loginBox.pack_start(registerButton, false, false, 0);
+    stack.add(loginBox, "login");
+
+    //Dashboard
+    Box dashboardBox;
+    Label dashboardLabel("Welcome, " + usernameEntry.get_text() + "!");
+    dashboardBox.pack_start(dashboardLabel);
+    stack.add(dashboardBox, "dashboard");
+
+    loginButton.signal_clicked().connect([&stack, &usernameEntry, &dashboardLabel] {
+        dashboardLabel.set_text("Welcome, " + usernameEntry.get_text() + "!");
+        stack.set_visible_child("dashboard");
+    });
+
+    Gtk::Alignment* align = Gtk::manage(new Gtk::Alignment(0.5, 0.5, 0, 0));
+        align->add(stack);
+        appWindow.add(*align);
+    appWindow.show_all();
 
     return app->run(appWindow);
 }
