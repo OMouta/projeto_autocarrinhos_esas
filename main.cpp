@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <string>
 #include <iostream>
+#include <sqlite3.h>
 
 using namespace Gtk;
 using namespace std;
@@ -10,9 +11,9 @@ using namespace std;
 int main(int argc, char** argv)
 {
     auto app = Application::create(argc, argv, "org.autocarrinhos.esas");
-    auto settings = Gtk::Settings::get_default();
+    auto settings = Settings::get_default();
 
-    Glib::RefPtr<Gtk::CssProvider> cssProvider = Gtk::CssProvider::create();
+    Glib::RefPtr<CssProvider> cssProvider = CssProvider::create();
 
     if(!cssProvider->load_from_path("theme.css")) 
     {
@@ -21,7 +22,7 @@ int main(int argc, char** argv)
     else 
     {
         Glib::RefPtr<Gdk::Screen> screen = Gdk::Screen::get_default();
-        Gtk::StyleContext::add_provider_for_screen(screen, cssProvider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+        StyleContext::add_provider_for_screen(screen, cssProvider, GTK_STYLE_PROVIDER_PRIORITY_USER);
     }
 
     settings->property_gtk_application_prefer_dark_theme() = true;
@@ -41,7 +42,7 @@ int main(int argc, char** argv)
     loginBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
     loginBox.set_homogeneous(true);
 
-    Label title("Entre na sua conta");
+    Label title("Entre na sua conta"), erro("");
     Entry usernameEntry, passwordEntry;
     Button loginButton("Entrar"), registerButton("Registar");
 
@@ -59,6 +60,7 @@ int main(int argc, char** argv)
     loginBox.pack_start(passwordEntry, false, false, 0);
     loginBox.pack_start(loginButton, false, false, 0);
     loginBox.pack_start(registerButton, false, false, 0);
+    loginBox.pack_start(erro, false, false, 0);
     stack.add(loginBox, "login");
 
     //Dashboard
@@ -67,12 +69,16 @@ int main(int argc, char** argv)
     dashboardBox.pack_start(dashboardLabel);
     stack.add(dashboardBox, "dashboard");
 
-    loginButton.signal_clicked().connect([&stack, &usernameEntry, &dashboardLabel] {
-        dashboardLabel.set_text("Welcome, " + usernameEntry.get_text() + "!");
-        stack.set_visible_child("dashboard");
+    loginButton.signal_clicked().connect([&stack, &usernameEntry,&passwordEntry, &dashboardLabel, &erro] {
+        if(usernameEntry.get_text() == "admin" && passwordEntry.get_text() == "admin") {
+            dashboardLabel.set_text("Welcome, " + usernameEntry.get_text() + "!");
+            stack.set_visible_child("dashboard");
+        } else {
+            erro.set_text("Utilizador ou palavra-passe incorretos");
+        }
     });
 
-    Gtk::Alignment* align = Gtk::manage(new Gtk::Alignment(0.5, 0.5, 0, 0));
+    Alignment* align = manage(new Alignment(0.5, 0.5, 0, 0));
         align->add(stack);
         appWindow.add(*align);
     appWindow.show_all();
