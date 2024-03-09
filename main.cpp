@@ -8,6 +8,16 @@
 using namespace Gtk;
 using namespace std;
 
+struct Carro {
+    string marca, modelo, cor, matricula, combustivel, transmissao, estado, pathimagem;
+    int ano, preco;
+} c[10000];
+
+struct Utilizador {
+    string nomeutilizador, palavraPasse, email, contacto, nome, morada, nif, ccnumero, cvv;
+    int tipodeconta;
+} u[10000];
+
 int main(int argc, char** argv)
 {
     auto app = Application::create(argc, argv, "org.autocarrinhos.esas");
@@ -90,12 +100,13 @@ int main(int argc, char** argv)
     erroreg.set_name("erro");
 
     Entry usernamereg, passwordreg, passwordregconfirm;
-    Button registerButton2("Registar");
+    Button registerButton2("Registar"), cancelarreg("Cancelar");
 
     usernamereg.set_size_request(70, 50);
     passwordreg.set_size_request(70, 50);
     passwordregconfirm.set_size_request(70, 50);
     registerButton2.set_size_request(70, 50);
+    cancelarreg.set_size_request(70, 50);
     erroreg.set_size_request(70, 5);
     logo.set_size_request(70, 70);
 
@@ -112,10 +123,11 @@ int main(int argc, char** argv)
     registrarBox.pack_start(passwordregconfirm, false, false, 0);
     registrarBox.pack_start(erroreg, false, false, 0);
     registrarBox.pack_start(registerButton2, false, false, 0);
+    registrarBox.pack_start(cancelarreg, false, false, 0);
     stack.add(registrarBox, "registrar");
     #endif
 
-    #if 1 //DashboardUser
+    #if 1 //Dashboardutilizador
     appWindow.set_title("Autocarrinhos ESAS - Dashboard");
 
     Box DashboardUser, TopBarUser;
@@ -168,7 +180,7 @@ int main(int argc, char** argv)
     stack.add(DashboardUser, "dashboarduser");
     #endif
 
-    #if 1 //butoes, ajuda pls
+    #if 1 //butoes
     loginButton.signal_clicked().connect([&stack, &usernameEntry,&passwordEntry, &dashboardLabelUser, &erro] {
         if(usernameEntry.get_text() == "admin" && passwordEntry.get_text() == "admin") {
             dashboardLabelUser.set_text("Autenticado como: " + usernameEntry.get_text() + ", bem-vindo!");
@@ -219,6 +231,14 @@ int main(int argc, char** argv)
         }
     });
     #endif
+
+    cancelarreg.signal_clicked().connect([&stack, &erroreg, &usernamereg, &passwordreg, &passwordregconfirm] {
+        erroreg.set_text("");
+        usernamereg.set_text("");
+        passwordreg.set_text("");
+        passwordregconfirm.set_text("");
+        stack.set_visible_child("login");
+    });
 
     Alignment* align = manage(new Alignment(0.5, 0.5, 0, 0));
         align->add(stack);
