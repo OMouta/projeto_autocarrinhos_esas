@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     Window appWindow;
     appWindow.set_title("Autocarrinhos ESAS");
     appWindow.set_default_size(1200, 700);
-    appWindow.set_position(WindowPosition::WIN_POS_CENTER);
+    //appWindow.set_position(WindowPosition::WIN_POS_CENTER);
     appWindow.set_resizable(true);
 
     Stack stack;
@@ -40,6 +40,7 @@ int main(int argc, char** argv)
     //os #if e #endif é pra organizar o codigo, o 1 ativa e o 0 desativa a parte do codigo! MANTER NO 1 PARA A FUNCIONAR CORRETAMENTE!
 
     #if 1 //Log in
+    appWindow.set_title("Autocarrinhos ESAS - Login");
     Box loginBox;
     loginBox.set_spacing(15);
     loginBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -76,6 +77,7 @@ int main(int argc, char** argv)
     #endif
 
     #if 1 //registrar
+    appWindow.set_title("Autocarrinhos ESAS - Registar");
     Box registrarBox;
     registrarBox.set_spacing(15);
     registrarBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -114,14 +116,15 @@ int main(int argc, char** argv)
     #endif
 
     #if 1 //DashboardUser
+    appWindow.set_title("Autocarrinhos ESAS - Dashboard");
+
     Box DashboardUser, TopBarUser;
     Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), Suportebutton("Suporte ao cliente"), logoutbuttonUser("Sair");
     Stack contentStackUser;
     Label dashboardLabelUser("Bem-vindo, admin");
+    Image logoUser("assets/logocar-xsmall.png");
 
     Box procurarCarrosBox, historicobox, defbox, Suportebox;
-
-    logoutbuttonUser.set_size_request(40, 30);
 
     contentStackUser.add(procurarCarrosBox, "procurarCarros");
     contentStackUser.add(historicobox, "historicobox");
@@ -131,11 +134,12 @@ int main(int argc, char** argv)
     DashboardUser.set_orientation(Orientation::ORIENTATION_VERTICAL);
     TopBarUser.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
 
-    TopBarUser.pack_start(procurarbuttonCarros);
-    TopBarUser.pack_start(historicobutton);
-    TopBarUser.pack_start(defbutton);
-    TopBarUser.pack_start(Suportebutton);
-    TopBarUser.pack_start(logoutbuttonUser);
+    TopBarUser.pack_start(logoUser, PACK_SHRINK, 50);
+    TopBarUser.pack_start(procurarbuttonCarros, PACK_SHRINK, 10);
+    TopBarUser.pack_start(historicobutton, PACK_SHRINK, 10);
+    TopBarUser.pack_start(defbutton, PACK_SHRINK, 10);
+    TopBarUser.pack_start(Suportebutton, PACK_SHRINK, 10);
+    TopBarUser.pack_start(logoutbuttonUser, PACK_SHRINK, 10);
 
     procurarbuttonCarros.signal_clicked().connect([&contentStackUser] {
         contentStackUser.set_visible_child("procurarCarros");
@@ -167,24 +171,51 @@ int main(int argc, char** argv)
     #if 1 //butoes, ajuda pls
     loginButton.signal_clicked().connect([&stack, &usernameEntry,&passwordEntry, &dashboardLabelUser, &erro] {
         if(usernameEntry.get_text() == "admin" && passwordEntry.get_text() == "admin") {
-            dashboardLabelUser.set_text("Welcome, " + usernameEntry.get_text() + "!");
+            dashboardLabelUser.set_text("Autenticado como: " + usernameEntry.get_text() + ", bem-vindo!");
             stack.set_visible_child("dashboarduser");
+
+            erro.set_text("");
+            usernameEntry.set_text("");
+            passwordEntry.set_text("");
         } else {
             erro.set_text("Utilizador ou palavra-passe incorretos");
         }
     });
 
-    registerButton.signal_clicked().connect([&stack, &erro] {
+    registerButton.signal_clicked().connect([&stack, &erro, &usernameEntry, &passwordEntry] {
         erro.set_text("");
+        usernameEntry.set_text("");
+        passwordEntry.set_text("");
         stack.set_visible_child("registrar");
     });
 
-    registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg] {
-        if(passwordreg.get_text() == passwordregconfirm.get_text()) {
+    registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry] {
+        if(passwordreg.get_text() == passwordregconfirm.get_text() && usernamereg.get_text() != "" && passwordreg.get_text() != "" && passwordregconfirm.get_text() != ""){
             erroreg.set_text("");
+
+            //para fazer login automatico
+            usernameEntry.set_text(usernamereg.get_text());
+            passwordEntry.set_text(passwordreg.get_text());
+
+            usernamereg.set_text("");
+            passwordreg.set_text("");
+            passwordregconfirm.set_text("");
             stack.set_visible_child("login");
         } else {
-            erroreg.set_text("As palavras-passe não coincidem");
+            if(passwordreg.get_text() != passwordregconfirm.get_text()){
+                erroreg.set_text("As palavras-passe não coincidem");
+            }
+            else if(usernamereg.get_text() == ""){
+                erroreg.set_text("O nome de utilizador está vazio");
+            }
+            else if(passwordreg.get_text() == ""){
+                erroreg.set_text("A palavra-passe está vazia");
+            }
+            else if(passwordregconfirm.get_text() == ""){
+                erroreg.set_text("A confirmação da palavra-passe está vazia");
+            }
+            else
+            erroreg.set_text("Erro no formulario de registo");
         }
     });
     #endif
