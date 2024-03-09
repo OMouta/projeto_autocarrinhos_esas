@@ -3,31 +3,67 @@
 #include <windows.h>
 #include <string>
 #include <iostream>
-#include <sqlite3.h>
+#include <fstream>
+#include <filesystem>
 
 using namespace Gtk;
 using namespace std;
 
-struct Carro {
-    string marca, modelo, cor, matricula, combustivel, transmissao, estado, pathimagem;
-    int ano, preco;
-} c[10000];
+bool ficheirocheck(const string & nomeficheiro) {
+    ifstream ficheiro(nomeficheiro);
+    return ficheiro.good();
+}
 
 struct Utilizador {
     string nomeutilizador, palavraPasse, email, contacto, nome, morada, nif, ccnumero, cvv;
-    int tipodeconta;
-} u[10000];
+    bool eadmin;
+} utilizadoratual;
+
+void criarutilizador(string nomeutilizador, string palavraPasse, string email, string contacto, string nome, string morada, string nif, string ccnumero, string cvv, int tipodeconta) {
+    ofstream ficheiro("dados/utilizadores/" + nomeutilizador + "/info.txt");
+    ficheiro << "Nome de utilizador: " << nomeutilizador << endl;
+    ficheiro << "Palavra-passe: " << palavraPasse << endl;
+    ficheiro << "Email: " << email << endl;
+    ficheiro << "Contacto: " << contacto << endl;
+    ficheiro << "Nome: " << nome << endl;
+    ficheiro << "Morada: " << morada << endl;
+    ficheiro << "NIF: " << nif << endl;
+    ficheiro << "Numero do cartão de crédito: " << ccnumero << endl;
+    ficheiro << "CVV: " << cvv << endl;
+    ficheiro << "Tipo de conta: " << tipodeconta << endl;
+    ficheiro.close();
+}
 
 int main(int argc, char** argv)
 {
+
+    //verificar se as pastas existem, se não existirem, criar
+    filesystem::path dircarros = "dados/carros";
+    filesystem::path dirutlizadores = "dados/utilizadores";
+    filesystem::create_directory(dircarros);
+    filesystem::create_directory(dirutlizadores);
+
+    //verificar se os ficheiros existem, se não existirem, criar
+    if (!ficheirocheck("dados/utilizadores/listautilizadores.txt"))
+    {
+        ofstream ficheiro("dados/utilizadores/listautilizadores.txt");
+    }
+
+    if (!ficheirocheck("dados/carros/listacarros.txt")) 
+    {
+        ofstream ficheiro("dados/carros/listacarros.txt");
+    }
+
+    //criar a aplicação
     auto app = Application::create(argc, argv, "org.autocarrinhos.esas");
     auto settings = Settings::get_default();
 
+    //carregar o css
     Glib::RefPtr<CssProvider> cssProvider = CssProvider::create();
 
     if(!cssProvider->load_from_path("theme.css")) 
     {
-        std::cerr << "Failed to load CSS file.\n";
+        cerr << "CSS Falhou a abrir!.\n";
     } 
     else 
     {
@@ -35,14 +71,25 @@ int main(int argc, char** argv)
         StyleContext::add_provider_for_screen(screen, cssProvider, GTK_STYLE_PROVIDER_PRIORITY_USER);
     }
 
+    //definir o tema escuro
     settings->property_gtk_application_prefer_dark_theme() = true;
 
+    //criar a janela
     Window appWindow;
     appWindow.set_title("Autocarrinhos ESAS");
     appWindow.set_default_size(1200, 700);
     //appWindow.set_position(WindowPosition::WIN_POS_CENTER);
     appWindow.set_resizable(true);
 
+    try {
+        appWindow.set_icon_from_file("assets/logocar-small.ico");
+    } 
+    catch(const Glib::FileError & ex) 
+    {
+        cerr << "Erro: " << ex.what() << endl;
+    }
+
+    //criar o stack
     Stack stack;
     stack.set_transition_type(StackTransitionType::STACK_TRANSITION_TYPE_OVER_DOWN_UP);
     stack.set_transition_duration(500);
@@ -50,7 +97,6 @@ int main(int argc, char** argv)
     //os #if e #endif é pra organizar o codigo, o 1 ativa e o 0 desativa a parte do codigo! MANTER NO 1 PARA A FUNCIONAR CORRETAMENTE!
 
     #if 1 //Log in
-    appWindow.set_title("Autocarrinhos ESAS - Login");
     Box loginBox;
     loginBox.set_spacing(15);
     loginBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -87,7 +133,6 @@ int main(int argc, char** argv)
     #endif
 
     #if 1 //registrar
-    appWindow.set_title("Autocarrinhos ESAS - Registar");
     Box registrarBox;
     registrarBox.set_spacing(15);
     registrarBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -128,8 +173,6 @@ int main(int argc, char** argv)
     #endif
 
     #if 1 //Dashboardutilizador
-    appWindow.set_title("Autocarrinhos ESAS - Dashboard");
-
     Box DashboardUser, TopBarUser;
     Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), Suportebutton("Suporte ao cliente"), logoutbuttonUser("Sair");
     Stack contentStackUser;
@@ -202,6 +245,8 @@ int main(int argc, char** argv)
     });
 
     registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry] {
+        #include <filesystem>
+
         if(passwordreg.get_text() == passwordregconfirm.get_text() && usernamereg.get_text() != "" && passwordreg.get_text() != "" && passwordregconfirm.get_text() != ""){
             erroreg.set_text("");
 
@@ -230,7 +275,6 @@ int main(int argc, char** argv)
             erroreg.set_text("Erro no formulario de registo");
         }
     });
-    #endif
 
     cancelarreg.signal_clicked().connect([&stack, &erroreg, &usernamereg, &passwordreg, &passwordregconfirm] {
         erroreg.set_text("");
@@ -239,11 +283,14 @@ int main(int argc, char** argv)
         passwordregconfirm.set_text("");
         stack.set_visible_child("login");
     });
+    #endif
 
+    //alinhamento
     Alignment* align = manage(new Alignment(0.5, 0.5, 0, 0));
         align->add(stack);
         appWindow.add(*align);
     appWindow.show_all();
 
+    //executar a aplicação
     return app->run(appWindow);
 }
