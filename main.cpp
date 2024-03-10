@@ -214,8 +214,7 @@ int main(int argc, char **argv)
     Grid gridCarros;
     Box FiltrosBar, CarrosBox;
     Label FiltrosLabel("Filtros"), CarrosLabel("Resultados");
-    TreeView FiltroMarca, FiltroModelo, FiltroAno, FiltroCor;
-    Entry FiltroPrecoMin, FiltroPrecoMax;
+    Entry FiltroAno, FiltroPrecoMin, FiltroPrecoMax;
 
     FiltrosBar.set_orientation(Orientation::ORIENTATION_VERTICAL);
 
@@ -223,10 +222,7 @@ int main(int argc, char **argv)
 
     procurarCarrosScrolledWindow.add(CarrosBox);
 
-    FiltrosBar.pack_start(FiltroMarca, PACK_SHRINK);
-    FiltrosBar.pack_start(FiltroModelo, PACK_SHRINK);
     FiltrosBar.pack_start(FiltroAno, PACK_SHRINK);
-    FiltrosBar.pack_start(FiltroCor, PACK_SHRINK);
     FiltrosBar.pack_start(FiltroPrecoMin, PACK_SHRINK);
     FiltrosBar.pack_start(FiltroPrecoMax, PACK_SHRINK);
 
@@ -267,15 +263,15 @@ int main(int argc, char **argv)
         if(pathExists(temppath) && usernameEntry.get_text() != "" && passwordEntry.get_text() != "")
         {
             //verificar se a palavra-passe está correta
-            ifstream passwordFile(temppath + "/info.txt");
-            string line;
+            ifstream info(temppath + "/info.txt");
+            string linha;
             bool tem = false;
             string password = "Palavra-passe: " + passwordEntry.get_text();
 
             //loop para verificar se a palavra-passe existe
-            while(getline(passwordFile, line))
+            while(getline(info, linha))
             {
-                if(line == password)
+                if(linha == password)
                 {
                     tem = true;
                 }
@@ -299,7 +295,7 @@ int main(int argc, char **argv)
             }
 
             //fechar o ficheiro
-            passwordFile.close();
+            info.close();
         }
         else if (usernameEntry.get_text() == "" || passwordEntry.get_text() == "")
         {
