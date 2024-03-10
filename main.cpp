@@ -9,9 +9,9 @@
 using namespace Gtk;
 using namespace std;
 
-bool pathExists(const std::filesystem::path &p)
+bool pathExists(const filesystem::path & p)
 {
-    return std::filesystem::exists(p);
+    return filesystem::exists(p);
 }
 
 bool ficheirocheck(const string &nomeficheiro)
@@ -52,16 +52,8 @@ int main(int argc, char **argv)
     // verificar se as pastas existem, se não existirem, criar
     filesystem::path dircarros = "dados/carros";
     filesystem::path dirutlizadores = "dados/utilizadores";
-    filesystem::path dirimagens = "dados/carros/imagens";
     filesystem::create_directory(dircarros);
-    filesystem::create_directory(dirimagens);
     filesystem::create_directory(dirutlizadores);
-
-    // verificar se os ficheiros existem, se não existirem, criar
-    if (!ficheirocheck("dados/carros/listacarros.txt"))
-    {
-        ofstream ficheiro("dados/carros/listacarros.txt");
-    }
 
     // criar a aplicação
     auto app = Application::create(argc, argv, "org.autocarrinhos.esas");
@@ -191,14 +183,17 @@ int main(int argc, char **argv)
 
     Box procurarCarrosBox, historicobox, defbox, Suportebox;
 
+    //adicionar as paginas de procura, historico, definições e suporte ao stack da dashboard
     contentStackUser.add(procurarCarrosBox, "procurarCarros");
     contentStackUser.add(historicobox, "historicobox");
     contentStackUser.add(defbox, "defbox");
     contentStackUser.add(Suportebox, "Suportebox");
 
+    //orientação dos boxes
     DashboardUser.set_orientation(Orientation::ORIENTATION_VERTICAL);
     TopBarUser.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
 
+    //adicionar os butoes a barra de cima
     TopBarUser.pack_start(logoUser, PACK_SHRINK, 50);
     TopBarUser.pack_start(procurarbuttonCarros, PACK_SHRINK, 10);
     TopBarUser.pack_start(historicobutton, PACK_SHRINK, 10);
@@ -206,50 +201,110 @@ int main(int argc, char **argv)
     TopBarUser.pack_start(Suportebutton, PACK_SHRINK, 10);
     TopBarUser.pack_start(logoutbuttonUser, PACK_SHRINK, 10);
 
-
-
-
-    //BOX PROCURAR CARROS:
+    //BOX PROCURAR CARROS
     ScrolledWindow procurarCarrosScrolledWindow;
     Grid gridCarros;
     Box FiltrosBar, CarrosBox;
     Label FiltrosLabel("Filtros"), CarrosLabel("Resultados");
-    Entry FiltroAno, FiltroPrecoMin, FiltroPrecoMax;
+    Entry FiltroMarca, FiltroModelo, FiltroCor, FiltroAno, FiltroPrecoMin, FiltroPrecoMax;
+    CheckButton FiltroUsado("Usado"), FiltroNovo("Novo"), FilroEletrico("Eletrico"), FiltroGasolina("Gasolina"), FiltroDiesel("Diesel"), FiltroHibrido("Hibrido");
 
+    //Place holder para  filtros
+    FiltroMarca.set_placeholder_text("Marca");
+    FiltroModelo.set_placeholder_text("Modelo");
+    FiltroCor.set_placeholder_text("Cor");
+    FiltroAno.set_placeholder_text("Ano");
+    FiltroPrecoMin.set_placeholder_text("Preço Min");
+    FiltroPrecoMax.set_placeholder_text("Preço Max");
+
+    //Orientacao dos filtros
     FiltrosBar.set_orientation(Orientation::ORIENTATION_VERTICAL);
 
+    //Scroll para os carros
     procurarCarrosScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-
     procurarCarrosScrolledWindow.add(CarrosBox);
 
-    FiltrosBar.pack_start(FiltroAno, PACK_SHRINK);
-    FiltrosBar.pack_start(FiltroPrecoMin, PACK_SHRINK);
-    FiltrosBar.pack_start(FiltroPrecoMax, PACK_SHRINK);
+    //Adicionar os filtros
+    FiltrosBar.pack_start(FiltroMarca, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroModelo, PACK_SHRINK), 5;
+    FiltrosBar.pack_start(FiltroCor, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroAno, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroPrecoMin, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroPrecoMax, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroUsado, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroNovo, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FilroEletrico, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroGasolina, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroDiesel, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroHibrido, PACK_SHRINK, 5);
 
+    /* Tentavida de implementar o autocompletar, nao acabado!
+    Glib::RefPtr<EntryCompletion> FiltroComp = EntryCompletion::create();
+
+    FiltroMarca.set_completion(FiltroComp);
+    FiltroModelo.set_completion(FiltroComp);
+    FiltroCor.set_completion(FiltroComp);
+    FiltroAno.set_completion(FiltroComp);
+
+    class ModelColumns : public TreeModel::ColumnRecord
+    {
+    public:
+        ModelColumns()
+        {
+            add(m_col_name);
+        }
+
+        TreeModelColumn<Glib::ustring> m_col_name;
+    };
+
+    ModelColumns columnRecord;
+
+    Glib::RefPtr<ListStore> FiltroCompLista = ListStore::create(columnRecord);
+
+    TreeModel::Row row = *(FiltroCompLista->append());
+    row[columnRecord.m_col_name] = "Example";
+
+    FiltroComp->set_model(FiltroCompLista);
+    FiltroComp->set_text_column(columnRecord.m_col_name);
+    */
+
+    //Adicionar os filtros e os carros ao grid
     gridCarros.add(FiltrosLabel);
     gridCarros.attach_next_to(FiltrosBar, FiltrosLabel, PositionType::POS_BOTTOM, 1, 1);
     gridCarros.attach_next_to(CarrosLabel, FiltrosLabel, PositionType::POS_RIGHT, 1, 1);
     gridCarros.attach_next_to(procurarCarrosScrolledWindow, FiltrosBar, PositionType::POS_RIGHT, 1, 1);
 
+    //definir o espaçamento do grid
+    gridCarros.set_column_spacing(350);
+    gridCarros.set_row_spacing(10);
+
+    //adicionar o grid ao box
     procurarCarrosBox.pack_start(gridCarros, PACK_SHRINK);
 
-
-
-
+    //mudar para a pagina de procurar carros
     procurarbuttonCarros.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("procurarCarros"); });
 
+    //mudar para a pagina de historico
     historicobutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("historicobox"); });
 
+    //mudar para a pagina de definições
     defbutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("defbox"); });
 
+    //mudar para a pagina de suporte
     Suportebutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("Suportebox"); });
 
+    //mudar para a pagina de login
     logoutbuttonUser.signal_clicked().connect([&stack]{ stack.set_visible_child("login"); });
 
+    //espaçamento
+    DashboardUser.set_spacing(60);
+
+    //adicionar barra de filtros, menus e um texto a deshbord de utilizador
     DashboardUser.pack_start(TopBarUser, PACK_SHRINK);
     DashboardUser.pack_start(contentStackUser);
     DashboardUser.pack_start(dashboardLabelUser, PACK_SHRINK);
 
+    //adicionar a dashboard ao stack
     stack.add(DashboardUser, "dashboarduser");
 #endif
 
