@@ -9,15 +9,6 @@
 using namespace Gtk;
 using namespace std;
 
-bool authenticateUser(string &usernameEntry, string &passwordEntry){
-    //Ruta para o ficheiro do utilizador
-    std::string filePath = "dados/utilizadores/" + usernameEntry + "/info.txt";
-
-    //Abrir o ficheiro do utilizador
-    std::ifstream passwordFile(filePath);
-
-}
-
 bool pathExists(const std::filesystem::path &p)
 {
     return std::filesystem::exists(p);
@@ -28,12 +19,6 @@ bool ficheirocheck(const string &nomeficheiro)
     ifstream ficheiro(nomeficheiro);
     return ficheiro.good();
 }
-
-struct Utilizador
-{
-    string nomeutilizador, palavraPasse, email, contacto, nome, morada, nif, ccnumero, cvv;
-    bool eadmin;
-} utilizadoratual;
 
 void criarutilizador(string nomeutilizador, string palavraPasse)
 {
@@ -51,20 +36,28 @@ void criarutilizador(string nomeutilizador, string palavraPasse)
     ficheiro.close();
 }
 
+bool temcaracterespecial(const string nome) {
+    for (char c : nome) // percorre a string letra a letra
+    {
+        if (c == '!' || c == '@' || c == '#' || c == '$' || c == '%' || c == '^' || c == '&' || c == '*' || c == '(' || c == ')' || c == '-' || c == '_' || c == '+' || c == '=' || c == '{' || c == '}' || c == '[' || c == ']' || c == ':' || c == ';' || c == '"' || c == '\'' || c == '<' || c == '>' || c == ',' || c == '.' || c == '?' || c == '/' || c == '|' || c == '\\' || c == '`' || c == '~' || c == ' ')
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 int main(int argc, char **argv)
 {
     // verificar se as pastas existem, se não existirem, criar
     filesystem::path dircarros = "dados/carros";
     filesystem::path dirutlizadores = "dados/utilizadores";
+    filesystem::path dirimagens = "dados/carros/imagens";
     filesystem::create_directory(dircarros);
+    filesystem::create_directory(dirimagens);
     filesystem::create_directory(dirutlizadores);
 
     // verificar se os ficheiros existem, se não existirem, criar
-    if (!ficheirocheck("dados/utilizadores/listautilizadores.txt"))
-    {
-        ofstream ficheiro("dados/utilizadores/listautilizadores.txt");
-    }
-
     if (!ficheirocheck("dados/carros/listacarros.txt"))
     {
         ofstream ficheiro("dados/carros/listacarros.txt");
@@ -247,20 +240,15 @@ int main(int argc, char **argv)
 
 
 
-    procurarbuttonCarros.signal_clicked().connect([&contentStackUser]
-                                                  { contentStackUser.set_visible_child("procurarCarros"); });
+    procurarbuttonCarros.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("procurarCarros"); });
 
-    historicobutton.signal_clicked().connect([&contentStackUser]
-                                             { contentStackUser.set_visible_child("historicobox"); });
+    historicobutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("historicobox"); });
 
-    defbutton.signal_clicked().connect([&contentStackUser]
-                                       { contentStackUser.set_visible_child("defbox"); });
+    defbutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("defbox"); });
 
-    Suportebutton.signal_clicked().connect([&contentStackUser]
-                                           { contentStackUser.set_visible_child("Suportebox"); });
+    Suportebutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("Suportebox"); });
 
-    logoutbuttonUser.signal_clicked().connect([&stack]
-                                              { stack.set_visible_child("login"); });
+    logoutbuttonUser.signal_clicked().connect([&stack]{ stack.set_visible_child("login"); });
 
     DashboardUser.pack_start(TopBarUser, PACK_SHRINK);
     DashboardUser.pack_start(contentStackUser);
@@ -271,43 +259,71 @@ int main(int argc, char **argv)
 
 #if 1 // butoes
     loginButton.signal_clicked().connect([&stack, &usernameEntry, &passwordEntry, &dashboardLabelUser, &erro]
-                                         {
+    {
         
         string temppath = "dados/utilizadores/" + usernameEntry.get_text(); 
 
-        if(pathExists(temppath)){
-            
-        }else{
-            erro.set_text("Nome de utilizador/Palavra Passe errados");
+        if(pathExists(temppath) && usernameEntry.get_text() != "" && passwordEntry.get_text() != "")
+        {
+            ifstream passwordFile(temppath + "/info.txt");
+            string line;
+            bool tem = false;
+            string password = "Palavra-passe: " + passwordEntry.get_text();
+
+            while(getline(passwordFile, line))
+            {
+                if(line == password)
+                {
+                    tem = true;
+                }
+            }
+
+            if(tem)
+            {
+                dashboardLabelUser.set_text("Autenticado como: " + usernameEntry.get_text() + ", bem-vindo!");
+                stack.set_visible_child("dashboarduser");
+
+                erro.set_text("");
+                usernameEntry.set_text("");
+                passwordEntry.set_text("");
+            }
+            else
+            {
+                erro.set_text("Palavra passe incorreta");
+            }
+
+            passwordFile.close();
         }
-
-        if(usernameEntry.get_text() == "admin" && passwordEntry.get_text() == "admin") {
-            dashboardLabelUser.set_text("Autenticado como: " + usernameEntry.get_text() + ", bem-vindo!");
-            stack.set_visible_child("dashboarduser");
-
-            erro.set_text("");
-            usernameEntry.set_text("");
-            passwordEntry.set_text("");
-        } else {
-            erro.set_text("Utilizador ou palavra-passe incorretos");
-        } });
+        else if (usernameEntry.get_text() == "" || passwordEntry.get_text() == "")
+        {
+            erro.set_text("Compos vazios no formulario de login");
+        }
+        else
+        {
+            erro.set_text("Nome de utilizador não existe");
+        }
+    });
 
     registerButton.signal_clicked().connect([&stack, &erro, &usernameEntry, &passwordEntry]
-                                            {
+    {
         erro.set_text("");
         usernameEntry.set_text("");
         passwordEntry.set_text("");
-        stack.set_visible_child("registrar"); });
+        stack.set_visible_child("registrar"); 
+    });
 
     registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry]
-                                             {
+    {
+        string usernameEntrytemp = usernameEntry.get_text();
 
-        if(passwordreg.get_text() == passwordregconfirm.get_text() && usernamereg.get_text() != "" && passwordreg.get_text() != "" && passwordregconfirm.get_text() != ""){
+        if((passwordreg.get_text() == passwordregconfirm.get_text()) && (usernamereg.get_text() != "") && (passwordreg.get_text() != "") && (passwordregconfirm.get_text() != "") && (!temcaracterespecial(usernameEntrytemp)))
+        {
             erroreg.set_text("");
 
             string temppath = "dados/utilizadores/" + usernamereg.get_text();
 
-            if(!pathExists(temppath)){
+            if(!pathExists(temppath))
+            {
 
                 criarutilizador(usernamereg.get_text(), passwordreg.get_text());
 
@@ -320,34 +336,49 @@ int main(int argc, char **argv)
                 passwordregconfirm.set_text("");
                 stack.set_visible_child("login");
             }
-            else{
+            else
+            {
                 erroreg.set_text("O nome de utilizador já existe");
             }
     
-        } else {
-            if(passwordreg.get_text() != passwordregconfirm.get_text()){
+        } else 
+        {
+            if(passwordreg.get_text() != passwordregconfirm.get_text())
+            {
                 erroreg.set_text("As palavras-passe não coincidem");
             }
-            else if(usernamereg.get_text() == ""){
+            else if(usernamereg.get_text() == "")
+            {
                 erroreg.set_text("O nome de utilizador está vazio");
             }
-            else if(passwordreg.get_text() == ""){
+            else if(passwordreg.get_text() == "")
+            {
                 erroreg.set_text("A palavra-passe está vazia");
             }
-            else if(passwordregconfirm.get_text() == ""){
+            else if(passwordregconfirm.get_text() == "")
+            {
                 erroreg.set_text("A confirmação da palavra-passe está vazia");
             }
+            else if(temcaracterespecial(usernameEntrytemp))
+            {
+                erroreg.set_text("O nome de utilizador não pode conter caracteres especiais");
+            }
             else
-            erroreg.set_text("Erro no formulario de registo");
-        } });
+            {
+                erroreg.set_text("Erro no formulario de registo");
+            }
+        }
+    });
 
     cancelarreg.signal_clicked().connect([&stack, &erroreg, &usernamereg, &passwordreg, &passwordregconfirm]
-                                         {
+    {
         erroreg.set_text("");
         usernamereg.set_text("");
         passwordreg.set_text("");
         passwordregconfirm.set_text("");
-        stack.set_visible_child("login"); });
+        stack.set_visible_child("login"); 
+    });
+
 #endif
 
     // alinhamento
