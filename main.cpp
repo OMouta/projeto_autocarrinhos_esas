@@ -24,6 +24,7 @@ struct Utilizador {
 } utilizadoratual;
 
 void criarutilizador(string nomeutilizador, string palavraPasse) {
+    filesystem::create_directory("dados/utilizadores/" + nomeutilizador);
     ofstream ficheiro("dados/utilizadores/" + nomeutilizador + "/info.txt");
     ficheiro << "Nome de utilizador: " << nomeutilizador << endl;
     ficheiro << "Palavra-passe: " << palavraPasse << endl;
@@ -41,7 +42,6 @@ namespace fs = std::filesystem;
 
 int main(int argc, char** argv)
 {
-
     //verificar se as pastas existem, se não existirem, criar
     filesystem::path dircarros = "dados/carros";
     filesystem::path dirutlizadores = "dados/utilizadores";
@@ -256,8 +256,9 @@ int main(int argc, char** argv)
 
             string temppath = "dados/utilizadores/" + usernamereg.get_text();
 
-            if(pathExists(temppath)){
-                criarutilizador(passwordreg.get_text(), usernamereg.get_text());
+            if(!pathExists(temppath)){
+
+                criarutilizador(usernamereg.get_text(), passwordreg.get_text());
 
                 //para fazer login automatico
                 usernameEntry.set_text(usernamereg.get_text());
@@ -271,7 +272,6 @@ int main(int argc, char** argv)
             else{
                 erroreg.set_text("O nome de utilizador já existe");
             }
-
     
         } else {
             if(passwordreg.get_text() != passwordregconfirm.get_text()){
