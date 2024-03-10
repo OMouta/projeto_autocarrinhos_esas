@@ -36,7 +36,7 @@ void criarutilizador(string nomeutilizador, string palavraPasse)
     ficheiro.close();
 }
 
-bool temcaracterespecial(const string nome) {
+bool temcaracterespecial(string nome) {
     for (char c : nome) // percorre a string letra a letra
     {
         if (c == '!' || c == '@' || c == '#' || c == '$' || c == '%' || c == '^' || c == '&' || c == '*' || c == '(' || c == ')' || c == '-' || c == '_' || c == '+' || c == '=' || c == '{' || c == '}' || c == '[' || c == ']' || c == ':' || c == ';' || c == '"' || c == '\'' || c == '<' || c == '>' || c == ',' || c == '.' || c == '?' || c == '/' || c == '|' || c == '\\' || c == '`' || c == '~' || c == ' ')
@@ -261,15 +261,18 @@ int main(int argc, char **argv)
     loginButton.signal_clicked().connect([&stack, &usernameEntry, &passwordEntry, &dashboardLabelUser, &erro]
     {
         
+        //verificar se o utilizador existe
         string temppath = "dados/utilizadores/" + usernameEntry.get_text(); 
 
         if(pathExists(temppath) && usernameEntry.get_text() != "" && passwordEntry.get_text() != "")
         {
+            //verificar se a palavra-passe está correta
             ifstream passwordFile(temppath + "/info.txt");
             string line;
             bool tem = false;
             string password = "Palavra-passe: " + passwordEntry.get_text();
 
+            //loop para verificar se a palavra-passe existe
             while(getline(passwordFile, line))
             {
                 if(line == password)
@@ -280,26 +283,32 @@ int main(int argc, char **argv)
 
             if(tem)
             {
-                dashboardLabelUser.set_text("Autenticado como: " + usernameEntry.get_text() + ", bem-vindo!");
+                //mudar para a pagina da dashboard e meter o nome do utilizador na label
+                dashboardLabelUser.set_text("Bem-vindo " + usernameEntry.get_text() + "!");
                 stack.set_visible_child("dashboarduser");
 
+                // resetar os campos
                 erro.set_text("");
                 usernameEntry.set_text("");
                 passwordEntry.set_text("");
             }
             else
             {
+                //erro na palavra-passe
                 erro.set_text("Palavra passe incorreta");
             }
 
+            //fechar o ficheiro
             passwordFile.close();
         }
         else if (usernameEntry.get_text() == "" || passwordEntry.get_text() == "")
         {
+            //erro nos campos vazios
             erro.set_text("Compos vazios no formulario de login");
         }
         else
         {
+            //erro no nome de utilizador
             erro.set_text("Nome de utilizador não existe");
         }
     });
@@ -309,7 +318,7 @@ int main(int argc, char **argv)
         erro.set_text("");
         usernameEntry.set_text("");
         passwordEntry.set_text("");
-        stack.set_visible_child("registrar"); 
+        stack.set_visible_child("registrar");
     });
 
     registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry]
@@ -324,13 +333,14 @@ int main(int argc, char **argv)
 
             if(!pathExists(temppath))
             {
-
+                //criar o utilizador
                 criarutilizador(usernamereg.get_text(), passwordreg.get_text());
 
                 //para fazer login automatico
                 usernameEntry.set_text(usernamereg.get_text());
                 passwordEntry.set_text(passwordreg.get_text());
 
+                //resetar os campos
                 usernamereg.set_text("");
                 passwordreg.set_text("");
                 passwordregconfirm.set_text("");
@@ -338,11 +348,13 @@ int main(int argc, char **argv)
             }
             else
             {
+                //erro no nome de utilizador
                 erroreg.set_text("O nome de utilizador já existe");
             }
     
         } else 
         {
+            //erro no formulario de registo
             if(passwordreg.get_text() != passwordregconfirm.get_text())
             {
                 erroreg.set_text("As palavras-passe não coincidem");
