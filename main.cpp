@@ -9,21 +9,34 @@
 using namespace Gtk;
 using namespace std;
 
-bool pathExists(const std::filesystem::path& p) {
+bool authenticateUser(string &usernameEntry, string &passwordEntry){
+    //Ruta para o ficheiro do utilizador
+    std::string filePath = "dados/utilizadores/" + usernameEntry + "/info.txt";
+
+    //Abrir o ficheiro do utilizador
+    std::ifstream passwordFile(filePath);
+
+}
+
+bool pathExists(const std::filesystem::path &p)
+{
     return std::filesystem::exists(p);
 }
 
-bool ficheirocheck(const string & nomeficheiro) {
+bool ficheirocheck(const string &nomeficheiro)
+{
     ifstream ficheiro(nomeficheiro);
     return ficheiro.good();
 }
 
-struct Utilizador {
+struct Utilizador
+{
     string nomeutilizador, palavraPasse, email, contacto, nome, morada, nif, ccnumero, cvv;
     bool eadmin;
 } utilizadoratual;
 
-void criarutilizador(string nomeutilizador, string palavraPasse) {
+void criarutilizador(string nomeutilizador, string palavraPasse)
+{
     filesystem::create_directory("dados/utilizadores/" + nomeutilizador);
     ofstream ficheiro("dados/utilizadores/" + nomeutilizador + "/info.txt");
     ficheiro << "Nome de utilizador: " << nomeutilizador << endl;
@@ -38,70 +51,69 @@ void criarutilizador(string nomeutilizador, string palavraPasse) {
     ficheiro.close();
 }
 
-namespace fs = std::filesystem;
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    //verificar se as pastas existem, se não existirem, criar
+    // verificar se as pastas existem, se não existirem, criar
     filesystem::path dircarros = "dados/carros";
     filesystem::path dirutlizadores = "dados/utilizadores";
     filesystem::create_directory(dircarros);
     filesystem::create_directory(dirutlizadores);
 
-    //verificar se os ficheiros existem, se não existirem, criar
+    // verificar se os ficheiros existem, se não existirem, criar
     if (!ficheirocheck("dados/utilizadores/listautilizadores.txt"))
     {
         ofstream ficheiro("dados/utilizadores/listautilizadores.txt");
     }
 
-    if (!ficheirocheck("dados/carros/listacarros.txt")) 
+    if (!ficheirocheck("dados/carros/listacarros.txt"))
     {
         ofstream ficheiro("dados/carros/listacarros.txt");
     }
 
-    //criar a aplicação
+    // criar a aplicação
     auto app = Application::create(argc, argv, "org.autocarrinhos.esas");
     auto settings = Settings::get_default();
 
-    //carregar o css
+    // carregar o css
     Glib::RefPtr<CssProvider> cssProvider = CssProvider::create();
 
-    if(!cssProvider->load_from_path("theme.css")) 
+    if (!cssProvider->load_from_path("theme.css"))
     {
         cerr << "CSS Falhou a abrir!.\n";
-    } 
-    else 
+    }
+    else
     {
         Glib::RefPtr<Gdk::Screen> screen = Gdk::Screen::get_default();
         StyleContext::add_provider_for_screen(screen, cssProvider, GTK_STYLE_PROVIDER_PRIORITY_USER);
     }
 
-    //definir o tema escuro
+    // definir o tema escuro
     settings->property_gtk_application_prefer_dark_theme() = true;
 
-    //criar a janela
+    // criar a janela
     Window appWindow;
     appWindow.set_title("Autocarrinhos ESAS");
     appWindow.set_default_size(1200, 700);
-    //appWindow.set_position(WindowPosition::WIN_POS_CENTER);
+    // appWindow.set_position(WindowPosition::WIN_POS_CENTER);
     appWindow.set_resizable(true);
 
-    try {
+    try
+    {
         appWindow.set_icon_from_file("assets/logocar-small.ico");
-    } 
-    catch(const Glib::FileError & ex) 
+    }
+    catch (const Glib::FileError &ex)
     {
         cerr << "Erro: " << ex.what() << endl;
     }
 
-    //criar o stack
+    // criar o stack
     Stack stack;
     stack.set_transition_type(StackTransitionType::STACK_TRANSITION_TYPE_OVER_DOWN_UP);
     stack.set_transition_duration(500);
 
-    //os #if e #endif é pra organizar o codigo, o 1 ativa e o 0 desativa a parte do codigo! MANTER NO 1 PARA A FUNCIONAR CORRETAMENTE!
+    // os #if e #endif é pra organizar o codigo, o 1 ativa e o 0 desativa a parte do codigo! MANTER NO 1 PARA A FUNCIONAR CORRETAMENTE!
 
-    #if 1 //Log in
+#if 1 // Log in
     Box loginBox;
     loginBox.set_spacing(15);
     loginBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -109,7 +121,7 @@ int main(int argc, char** argv)
 
     Image logo("assets/logo-med.png");
 
-    Label title("Entre na sua conta"),erro("");
+    Label title("Entre na sua conta"), erro("");
     title.set_name("title");
     erro.set_name("erro");
 
@@ -135,9 +147,9 @@ int main(int argc, char** argv)
     loginBox.pack_start(loginButton, false, false, 0);
     loginBox.pack_start(registerButton, false, false, 0);
     stack.add(loginBox, "login");
-    #endif
+#endif
 
-    #if 1 //registrar
+#if 1 // registrar
     Box registrarBox;
     registrarBox.set_spacing(15);
     registrarBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -145,7 +157,7 @@ int main(int argc, char** argv)
 
     Image logoreg("assets/logo-med.png");
 
-    Label titlereg("Crie a sua conta"),erroreg("");
+    Label titlereg("Crie a sua conta"), erroreg("");
     titlereg.set_name("title");
     erroreg.set_name("erro");
 
@@ -175,9 +187,9 @@ int main(int argc, char** argv)
     registrarBox.pack_start(registerButton2, false, false, 0);
     registrarBox.pack_start(cancelarreg, false, false, 0);
     stack.add(registrarBox, "registrar");
-    #endif
+#endif
 
-    #if 1 //Dashboardutilizador
+#if 1 // Dashboardutilizador
     Box DashboardUser, TopBarUser;
     Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), Suportebutton("Suporte ao cliente"), logoutbuttonUser("Sair");
     Stack contentStackUser;
@@ -201,35 +213,40 @@ int main(int argc, char** argv)
     TopBarUser.pack_start(Suportebutton, PACK_SHRINK, 10);
     TopBarUser.pack_start(logoutbuttonUser, PACK_SHRINK, 10);
 
-    procurarbuttonCarros.signal_clicked().connect([&contentStackUser] {
-        contentStackUser.set_visible_child("procurarCarros");
-    });
+    procurarbuttonCarros.signal_clicked().connect([&contentStackUser]
+                                                  { contentStackUser.set_visible_child("procurarCarros"); });
 
-    historicobutton.signal_clicked().connect([&contentStackUser] {
-        contentStackUser.set_visible_child("historicobox");
-    });
+    historicobutton.signal_clicked().connect([&contentStackUser]
+                                             { contentStackUser.set_visible_child("historicobox"); });
 
-    defbutton.signal_clicked().connect([&contentStackUser] {
-        contentStackUser.set_visible_child("defbox");
-    });
+    defbutton.signal_clicked().connect([&contentStackUser]
+                                       { contentStackUser.set_visible_child("defbox"); });
 
-    Suportebutton.signal_clicked().connect([&contentStackUser] {
-        contentStackUser.set_visible_child("Suportebox");
-    });
+    Suportebutton.signal_clicked().connect([&contentStackUser]
+                                           { contentStackUser.set_visible_child("Suportebox"); });
 
-    logoutbuttonUser.signal_clicked().connect([&stack] {
-        stack.set_visible_child("login");
-    });
+    logoutbuttonUser.signal_clicked().connect([&stack]
+                                              { stack.set_visible_child("login"); });
 
     DashboardUser.pack_start(TopBarUser, PACK_SHRINK);
     DashboardUser.pack_start(contentStackUser);
     DashboardUser.pack_start(dashboardLabelUser, PACK_SHRINK);
 
     stack.add(DashboardUser, "dashboarduser");
-    #endif
+#endif
 
-    #if 1 //butoes
-    loginButton.signal_clicked().connect([&stack, &usernameEntry,&passwordEntry, &dashboardLabelUser, &erro] {
+#if 1 // butoes
+    loginButton.signal_clicked().connect([&stack, &usernameEntry, &passwordEntry, &dashboardLabelUser, &erro]
+                                         {
+        
+        string temppath = "dados/utilizadores/" + usernameEntry.get_text(); 
+
+        if(pathExists(temppath)){
+            
+        }else{
+            erro.set_text("Nome de utilizador/Palavra Passe errados");
+        }
+
         if(usernameEntry.get_text() == "admin" && passwordEntry.get_text() == "admin") {
             dashboardLabelUser.set_text("Autenticado como: " + usernameEntry.get_text() + ", bem-vindo!");
             stack.set_visible_child("dashboarduser");
@@ -239,17 +256,17 @@ int main(int argc, char** argv)
             passwordEntry.set_text("");
         } else {
             erro.set_text("Utilizador ou palavra-passe incorretos");
-        }
-    });
+        } });
 
-    registerButton.signal_clicked().connect([&stack, &erro, &usernameEntry, &passwordEntry] {
+    registerButton.signal_clicked().connect([&stack, &erro, &usernameEntry, &passwordEntry]
+                                            {
         erro.set_text("");
         usernameEntry.set_text("");
         passwordEntry.set_text("");
-        stack.set_visible_child("registrar");
-    });
+        stack.set_visible_child("registrar"); });
 
-    registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry] {
+    registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry]
+                                             {
 
         if(passwordreg.get_text() == passwordregconfirm.get_text() && usernamereg.get_text() != "" && passwordreg.get_text() != "" && passwordregconfirm.get_text() != ""){
             erroreg.set_text("");
@@ -288,24 +305,23 @@ int main(int argc, char** argv)
             }
             else
             erroreg.set_text("Erro no formulario de registo");
-        }
-    });
+        } });
 
-    cancelarreg.signal_clicked().connect([&stack, &erroreg, &usernamereg, &passwordreg, &passwordregconfirm] {
+    cancelarreg.signal_clicked().connect([&stack, &erroreg, &usernamereg, &passwordreg, &passwordregconfirm]
+                                         {
         erroreg.set_text("");
         usernamereg.set_text("");
         passwordreg.set_text("");
         passwordregconfirm.set_text("");
-        stack.set_visible_child("login");
-    });
-    #endif
+        stack.set_visible_child("login"); });
+#endif
 
-    //alinhamento
-    Alignment* align = manage(new Alignment(0.5, 0.5, 0, 0));
-        align->add(stack);
-        appWindow.add(*align);
+    // alinhamento
+    Alignment *align = manage(new Alignment(0.5, 0.5, 0, 0));
+    align->add(stack);
+    appWindow.add(*align);
     appWindow.show_all();
 
-    //executar a aplicação
+    // executar a aplicação
     return app->run(appWindow);
 }
