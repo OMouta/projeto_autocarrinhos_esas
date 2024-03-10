@@ -201,6 +201,40 @@ int main(int argc, char** argv)
     TopBarUser.pack_start(Suportebutton, PACK_SHRINK, 10);
     TopBarUser.pack_start(logoutbuttonUser, PACK_SHRINK, 10);
 
+
+
+
+    //BOX PROCURAR CARROS:
+    ScrolledWindow procurarCarrosScrolledWindow;
+    Grid gridCarros;
+    Box FiltrosBar, CarrosBox;
+    Label FiltrosLabel("Filtros"), CarrosLabel("Resultados");
+    TreeView FiltroMarca, FiltroModelo, FiltroAno, FiltroCor;
+    Entry FiltroPrecoMin, FiltroPrecoMax;
+
+    FiltrosBar.set_orientation(Orientation::ORIENTATION_VERTICAL);
+
+    procurarCarrosScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+
+    procurarCarrosScrolledWindow.add(CarrosBox);
+
+    FiltrosBar.pack_start(FiltroMarca, PACK_SHRINK);
+    FiltrosBar.pack_start(FiltroModelo, PACK_SHRINK);
+    FiltrosBar.pack_start(FiltroAno, PACK_SHRINK);
+    FiltrosBar.pack_start(FiltroCor, PACK_SHRINK);
+    FiltrosBar.pack_start(FiltroPrecoMin, PACK_SHRINK);
+    FiltrosBar.pack_start(FiltroPrecoMax, PACK_SHRINK);
+
+    gridCarros.add(FiltrosLabel);
+    gridCarros.attach_next_to(FiltrosBar, FiltrosLabel, PositionType::POS_BOTTOM, 1, 1);
+    gridCarros.attach_next_to(CarrosLabel, FiltrosLabel, PositionType::POS_RIGHT, 1, 1);
+    gridCarros.attach_next_to(procurarCarrosScrolledWindow, FiltrosBar, PositionType::POS_RIGHT, 1, 1);
+
+    procurarCarrosBox.pack_start(gridCarros, PACK_SHRINK);
+
+
+
+
     procurarbuttonCarros.signal_clicked().connect([&contentStackUser] {
         contentStackUser.set_visible_child("procurarCarros");
     });
@@ -303,6 +337,7 @@ int main(int argc, char** argv)
     //alinhamento
     Alignment* align = manage(new Alignment(0.5, 0.5, 0, 0));
         align->add(stack);
+        align->add(contentStackUser);
         appWindow.add(*align);
     appWindow.show_all();
 

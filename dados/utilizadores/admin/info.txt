@@ -1,0 +1,2 @@
+Nome de utilizador: admin
+Palavra-passe: admin
