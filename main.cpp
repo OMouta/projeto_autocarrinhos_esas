@@ -9,6 +9,10 @@
 using namespace Gtk;
 using namespace std;
 
+bool pathExists(const std::filesystem::path& p) {
+    return std::filesystem::exists(p);
+}
+
 bool ficheirocheck(const string & nomeficheiro) {
     ifstream ficheiro(nomeficheiro);
     return ficheiro.good();
@@ -19,20 +23,21 @@ struct Utilizador {
     bool eadmin;
 } utilizadoratual;
 
-void criarutilizador(string nomeutilizador, string palavraPasse, string email, string contacto, string nome, string morada, string nif, string ccnumero, string cvv, int tipodeconta) {
+void criarutilizador(string nomeutilizador, string palavraPasse) {
     ofstream ficheiro("dados/utilizadores/" + nomeutilizador + "/info.txt");
     ficheiro << "Nome de utilizador: " << nomeutilizador << endl;
     ficheiro << "Palavra-passe: " << palavraPasse << endl;
-    ficheiro << "Email: " << email << endl;
-    ficheiro << "Contacto: " << contacto << endl;
-    ficheiro << "Nome: " << nome << endl;
-    ficheiro << "Morada: " << morada << endl;
-    ficheiro << "NIF: " << nif << endl;
-    ficheiro << "Numero do cartão de crédito: " << ccnumero << endl;
-    ficheiro << "CVV: " << cvv << endl;
-    ficheiro << "Tipo de conta: " << tipodeconta << endl;
+    ficheiro << "Email: " << endl;
+    ficheiro << "Contacto: " << endl;
+    ficheiro << "Nome: " << endl;
+    ficheiro << "Morada: " << endl;
+    ficheiro << "NIF: " << endl;
+    ficheiro << "Numero do cartão de crédito: " << endl;
+    ficheiro << "CVV: " << endl;
     ficheiro.close();
 }
+
+namespace fs = std::filesystem;
 
 int main(int argc, char** argv)
 {
@@ -245,19 +250,29 @@ int main(int argc, char** argv)
     });
 
     registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry] {
-        #include <filesystem>
 
         if(passwordreg.get_text() == passwordregconfirm.get_text() && usernamereg.get_text() != "" && passwordreg.get_text() != "" && passwordregconfirm.get_text() != ""){
             erroreg.set_text("");
 
-            //para fazer login automatico
-            usernameEntry.set_text(usernamereg.get_text());
-            passwordEntry.set_text(passwordreg.get_text());
+            string temppath = "dados/utilizadores/" + usernamereg.get_text();
 
-            usernamereg.set_text("");
-            passwordreg.set_text("");
-            passwordregconfirm.set_text("");
-            stack.set_visible_child("login");
+            if(pathExists(temppath)){
+                criarutilizador(passwordreg.get_text(), usernamereg.get_text());
+
+                //para fazer login automatico
+                usernameEntry.set_text(usernamereg.get_text());
+                passwordEntry.set_text(passwordreg.get_text());
+
+                usernamereg.set_text("");
+                passwordreg.set_text("");
+                passwordregconfirm.set_text("");
+                stack.set_visible_child("login");
+            }
+            else{
+                erroreg.set_text("O nome de utilizador já existe");
+            }
+
+    
         } else {
             if(passwordreg.get_text() != passwordregconfirm.get_text()){
                 erroreg.set_text("As palavras-passe não coincidem");
