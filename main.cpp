@@ -9,12 +9,12 @@
 using namespace Gtk;
 using namespace std;
 
-bool pathExists(const filesystem::path & p)
+bool pathExists(const filesystem::path & p) //verificar se o caminho existe
 {
     return filesystem::exists(p);
 }
 
-bool ficheirocheck(const string &nomeficheiro)
+bool ficheirocheck(const string &nomeficheiro) //verificar se o ficheiro existe, atualmente nao esta a ser usado
 {
     ifstream ficheiro(nomeficheiro);
     return ficheiro.good();
@@ -22,8 +22,11 @@ bool ficheirocheck(const string &nomeficheiro)
 
 void criarutilizador(string nomeutilizador, string palavraPasse)
 {
+    //criar a pasta do utilizador e o ficheiro de informação
     filesystem::create_directory("dados/utilizadores/" + nomeutilizador);
     ofstream ficheiro("dados/utilizadores/" + nomeutilizador + "/info.txt");
+
+    //escrever a informação no ficheiro
     ficheiro << "Nome de utilizador: " << nomeutilizador << endl;
     ficheiro << "Palavra-passe: " << palavraPasse << endl;
     ficheiro << "Email: " << endl;
@@ -33,17 +36,23 @@ void criarutilizador(string nomeutilizador, string palavraPasse)
     ficheiro << "NIF: " << endl;
     ficheiro << "Numero do cartão de crédito: " << endl;
     ficheiro << "CVV: " << endl;
+
+    //fechar o ficheiro
     ficheiro.close();
 }
 
-bool temcaracterespecial(string nome) {
+bool temcaracterespecial(string nome) //nao esta a funcionar corretamente
+{
     for (char c : nome) // percorre a string letra a letra
     {
         if (c == '!' || c == '@' || c == '#' || c == '$' || c == '%' || c == '^' || c == '&' || c == '*' || c == '(' || c == ')' || c == '-' || c == '_' || c == '+' || c == '=' || c == '{' || c == '}' || c == '[' || c == ']' || c == ':' || c == ';' || c == '"' || c == '\'' || c == '<' || c == '>' || c == ',' || c == '.' || c == '?' || c == '/' || c == '|' || c == '\\' || c == '`' || c == '~' || c == ' ')
         {
+            // se encontrar um caracter especial, retorna verdadeiro
             return true;
         }
     }
+
+    // se nao encontrar nenhum caracter especial, retorna falso
     return false;
 }
 
@@ -62,6 +71,7 @@ int main(int argc, char **argv)
     // carregar o css
     Glib::RefPtr<CssProvider> cssProvider = CssProvider::create();
 
+    // verificar se o css foi carregado corretamente
     if (!cssProvider->load_from_path("theme.css"))
     {
         cerr << "CSS Falhou a abrir!.\n";
@@ -78,10 +88,26 @@ int main(int argc, char **argv)
     // criar a janela
     Window appWindow;
     appWindow.set_title("Autocarrinhos ESAS");
-    appWindow.set_default_size(1200, 700);
-    // appWindow.set_position(WindowPosition::WIN_POS_CENTER);
+    appWindow.set_default_size(800, 600);
+
+    // centrar a janela no ecrã quando abre
+    appWindow.set_position(WindowPosition::WIN_POS_CENTER);
+
+    // permitir redimensionar a janela
     appWindow.set_resizable(true);
 
+    // definir o tamanho minimo e maximo da janela
+    appWindow.set_hexpand(true);
+    appWindow.set_vexpand(true);
+
+    // fechar a janela e prevente leak de memoria IMPORTANTE
+    appWindow.signal_delete_event().connect([&appWindow](GdkEventAny *event) -> bool
+    {
+        appWindow.hide();
+        return true;
+    });
+
+    // tentar carregar o logo
     try
     {
         appWindow.set_icon_from_file("assets/logocar-small.ico");
@@ -100,10 +126,17 @@ int main(int argc, char **argv)
 
 #if 1 // Log in
     Box loginBox;
+    ScrolledWindow LoginScroll;
     loginBox.set_spacing(15);
     loginBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
     loginBox.set_homogeneous(false);
 
+    // Scroll para a box
+    LoginScroll.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    LoginScroll.set_hexpand(true);
+    LoginScroll.set_vexpand(true);
+
+    // Logo, titulo, erro, entradas, botões
     Image logo("assets/logo-med.png");
 
     Label title("Entre na sua conta"), erro("");
@@ -113,6 +146,7 @@ int main(int argc, char **argv)
     Entry usernameEntry, passwordEntry;
     Button loginButton("Entrar"), registerButton("Registrar");
 
+    // Tamanho dos elementos
     usernameEntry.set_size_request(70, 50);
     passwordEntry.set_size_request(70, 50);
     loginButton.set_size_request(70, 50);
@@ -120,10 +154,12 @@ int main(int argc, char **argv)
     erro.set_size_request(70, 5);
     logo.set_size_request(70, 70);
 
+    // Placeholders
     usernameEntry.set_placeholder_text("Utilizador");
     passwordEntry.set_placeholder_text("Palavra-passe");
     passwordEntry.set_visibility(false);
 
+    // Adicionar os elementos a box
     loginBox.pack_start(logo, false, false, 0);
     loginBox.pack_start(title, false, false, 0);
     loginBox.pack_start(usernameEntry, false, false, 0);
@@ -131,15 +167,28 @@ int main(int argc, char **argv)
     loginBox.pack_start(erro, false, false, 0);
     loginBox.pack_start(loginButton, false, false, 0);
     loginBox.pack_start(registerButton, false, false, 0);
-    stack.add(loginBox, "login");
+
+    // Adicionar a box ao scroll
+    LoginScroll.add(loginBox);
+    LoginScroll.set_margin_bottom(50);
+
+    // Adicionar a box ao stack
+    stack.add(LoginScroll, "login");
 #endif
 
 #if 1 // registrar
     Box registrarBox;
+    ScrolledWindow registrarScroll;
     registrarBox.set_spacing(15);
     registrarBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
     registrarBox.set_homogeneous(false);
 
+    // Scroll para a box
+    registrarScroll.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    registrarScroll.set_hexpand(true);
+    registrarScroll.set_vexpand(true);
+
+    // Logo, titulo, erro, entradas, botões
     Image logoreg("assets/logo-med.png");
 
     Label titlereg("Crie a sua conta"), erroreg("");
@@ -149,6 +198,7 @@ int main(int argc, char **argv)
     Entry usernamereg, passwordreg, passwordregconfirm;
     Button registerButton2("Registar"), cancelarreg("Cancelar");
 
+    // Tamanho dos elementos
     usernamereg.set_size_request(70, 50);
     passwordreg.set_size_request(70, 50);
     passwordregconfirm.set_size_request(70, 50);
@@ -157,12 +207,14 @@ int main(int argc, char **argv)
     erroreg.set_size_request(70, 5);
     logo.set_size_request(70, 70);
 
+    // Placeholders
     usernamereg.set_placeholder_text("Nome de utilizador");
     passwordreg.set_placeholder_text("Palavra-passe");
     passwordreg.set_visibility(false);
     passwordregconfirm.set_placeholder_text("Confirme a palavra-passe");
     passwordregconfirm.set_visibility(false);
 
+    // Adicionar os elementos a box
     registrarBox.pack_start(logoreg, false, false, 0);
     registrarBox.pack_start(titlereg, false, false, 0);
     registrarBox.pack_start(usernamereg, false, false, 0);
@@ -171,7 +223,13 @@ int main(int argc, char **argv)
     registrarBox.pack_start(erroreg, false, false, 0);
     registrarBox.pack_start(registerButton2, false, false, 0);
     registrarBox.pack_start(cancelarreg, false, false, 0);
-    stack.add(registrarBox, "registrar");
+
+    // Adicionar a box ao scroll
+    registrarScroll.add(registrarBox);
+    registrarScroll.set_margin_bottom(50);
+
+    // Adicionar a box ao stack
+    stack.add(registrarScroll, "registrar");
 #endif
 
 #if 1 // Dashboardutilizador
@@ -312,9 +370,10 @@ int main(int argc, char **argv)
     loginButton.signal_clicked().connect([&stack, &usernameEntry, &passwordEntry, &dashboardLabelUser, &erro]
     {
         
-        //verificar se o utilizador existe
+        //caminho temporario para os dados do utilizador
         string temppath = "dados/utilizadores/" + usernameEntry.get_text(); 
 
+        //verificar se o utilizador existe
         if(pathExists(temppath) && usernameEntry.get_text() != "" && passwordEntry.get_text() != "")
         {
             //verificar se a palavra-passe está correta
