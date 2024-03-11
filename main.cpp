@@ -14,7 +14,7 @@ bool pathExists(const filesystem::path & p) //verificar se o caminho existe
     return filesystem::exists(p);
 }
 
-bool ficheirocheck(const string &nomeficheiro) //verificar se o ficheiro existe, atualmente nao esta a ser usado
+bool ficheirocheck(const string & nomeficheiro) //verificar se o ficheiro existe, atualmente nao esta a ser usado
 {
     ifstream ficheiro(nomeficheiro);
     return ficheiro.good();
@@ -258,6 +258,7 @@ int main(int argc, char **argv)
     TopBarUser.pack_start(defbutton, PACK_SHRINK, 10);
     TopBarUser.pack_start(Suportebutton, PACK_SHRINK, 10);
     TopBarUser.pack_start(logoutbuttonUser, PACK_SHRINK, 10);
+    TopBarUser.pack_start(dashboardLabelUser, PACK_SHRINK, 50);
 
     //BOX PROCURAR CARROS
     ScrolledWindow procurarCarrosScrolledWindow;
@@ -364,7 +365,6 @@ int main(int argc, char **argv)
     //adicionar barra de filtros, menus e um texto a deshbord de utilizador
     DashboardUser.pack_start(TopBarUser, PACK_SHRINK);
     DashboardUser.pack_start(contentStackUser);
-    DashboardUser.pack_start(dashboardLabelUser, PACK_SHRINK);
 
     //adicionar a dashboard ao stack
     stack.add(DashboardUser, "dashboarduser");
