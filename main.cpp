@@ -263,17 +263,47 @@ int main(int argc, char **argv)
     ScrolledWindow procurarCarrosScrolledWindow;
     Grid gridCarros;
     Box FiltrosBar, CarrosBox;
-    Label FiltrosLabel("Filtros"), CarrosLabel("Resultados");
-    Entry FiltroMarca, FiltroModelo, FiltroCor, FiltroAno, FiltroPrecoMin, FiltroPrecoMax;
+    Label FiltrosLabel("Filtros"), CarrosLabel("Resultados"), FiltroAnoLabel("Ano"), FiltroPrecoMinLabel("Preço Min"), FiltroPrecoMaxLabel("Preço Max"), FiltroOutrosLabel("Outros");
+    Entry FiltroMarca, FiltroModelo, FiltroCor;
     CheckButton FiltroUsado("Usado"), FiltroNovo("Novo"), FilroEletrico("Eletrico"), FiltroGasolina("Gasolina"), FiltroDiesel("Diesel"), FiltroHibrido("Hibrido");
+    SpinButton FiltroAno, FiltroPrecoMin, FiltroPrecoMax;
+
+    //Nome das classes para o css
+    FiltrosBar.set_name("Filtros");
+    FiltrosLabel.set_name("Filtros");
+    FiltroAnoLabel.set_name("Filtros");
+    FiltroPrecoMinLabel.set_name("Filtros");
+    FiltroPrecoMaxLabel.set_name("Filtros");
+    FiltroOutrosLabel.set_name("Filtros");
+    FiltroUsado.set_name("Filtros");
+    FiltroNovo.set_name("Filtros");
+    FilroEletrico.set_name("Filtros");
+    FiltroGasolina.set_name("Filtros");
+    FiltroDiesel.set_name("Filtros");
+    FiltroHibrido.set_name("Filtros");
+    FiltroAno.set_name("Filtros");
+    FiltroPrecoMin.set_name("Filtros");
+    FiltroPrecoMax.set_name("Filtros");
 
     //Place holder para  filtros
     FiltroMarca.set_placeholder_text("Marca");
     FiltroModelo.set_placeholder_text("Modelo");
     FiltroCor.set_placeholder_text("Cor");
-    FiltroAno.set_placeholder_text("Ano");
-    FiltroPrecoMin.set_placeholder_text("Preço Min");
-    FiltroPrecoMax.set_placeholder_text("Preço Max");
+
+    //Range dos filtros
+    FiltroAno.set_range(1900, 2025);
+    FiltroPrecoMax.set_range(0, 1000000);
+    FiltroPrecoMin.set_range(0, 1000000);
+
+    //Incrementos dos filtros
+    FiltroAno.set_increments(1, 10);
+    FiltroPrecoMax.set_increments(100, 1000);
+    FiltroPrecoMin.set_increments(100, 1000);
+
+    //Valores iniciais dos filtros
+    FiltroAno.set_value(2025);
+    FiltroPrecoMax.set_value(0);
+    FiltroPrecoMin.set_value(0);
 
     //Orientacao dos filtros
     FiltrosBar.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -286,45 +316,19 @@ int main(int argc, char **argv)
     FiltrosBar.pack_start(FiltroMarca, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroModelo, PACK_SHRINK), 5;
     FiltrosBar.pack_start(FiltroCor, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroAnoLabel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroAno, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroPrecoMinLabel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroPrecoMin, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroPrecoMaxLabel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroPrecoMax, PACK_SHRINK, 5);
+    FiltrosBar.pack_start(FiltroOutrosLabel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroUsado, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroNovo, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FilroEletrico, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroGasolina, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroDiesel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroHibrido, PACK_SHRINK, 5);
-
-    /* Tentavida de implementar o autocompletar, nao acabado!
-    Glib::RefPtr<EntryCompletion> FiltroComp = EntryCompletion::create();
-
-    FiltroMarca.set_completion(FiltroComp);
-    FiltroModelo.set_completion(FiltroComp);
-    FiltroCor.set_completion(FiltroComp);
-    FiltroAno.set_completion(FiltroComp);
-
-    class ModelColumns : public TreeModel::ColumnRecord
-    {
-    public:
-        ModelColumns()
-        {
-            add(m_col_name);
-        }
-
-        TreeModelColumn<Glib::ustring> m_col_name;
-    };
-
-    ModelColumns columnRecord;
-
-    Glib::RefPtr<ListStore> FiltroCompLista = ListStore::create(columnRecord);
-
-    TreeModel::Row row = *(FiltroCompLista->append());
-    row[columnRecord.m_col_name] = "Example";
-
-    FiltroComp->set_model(FiltroCompLista);
-    FiltroComp->set_text_column(columnRecord.m_col_name);
-    */
 
     //Adicionar os filtros e os carros ao grid
     gridCarros.add(FiltrosLabel);

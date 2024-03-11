@@ -29,3 +29,13 @@ entry {
     font-style: italic;
     color: #c45555;
 }
+
+#Filtros {
+    background-color: #1d1f1f;
+    color: #ffffff;
+}
+
+#filtros > label {
+    color: #ffffff;
+    background-color: transparent;
+}
