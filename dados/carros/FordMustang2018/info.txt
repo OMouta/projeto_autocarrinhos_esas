@@ -1,0 +1,7 @@
+Marca: Ford
+Modelo: Mustang
+Cor: Preto
+Combustivel: Gasolina
+Estado: Novo
+Ano: 2018
+Preço: 20000
