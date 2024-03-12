@@ -29,7 +29,10 @@ bool ficheirocheck(const string nomeficheiro) //verificar se o ficheiro existe, 
 
 void loadcarrosstruct()
 {
+    // caminho para oscarros
     filesystem::path dircarros = "dados/carros";
+
+    // resetar a struct
     for (int i = 0; i < 1000; i++)
     {
         c[i].marca = "";
@@ -41,15 +44,23 @@ void loadcarrosstruct()
         c[i].preco = 0;
     }
 
+    // resetar o numero de carros
     numerodecarrosatual = 0;
-    
+
+    // percorrer a pasta dos carros
     for (const auto & entry : filesystem::directory_iterator(dircarros)) 
     {
+        // verificar se é uma pasta
         if (entry.is_directory()) 
         {
+            // aumentar o numero de carros
             numerodecarrosatual++;
+
+            // abrir o ficheiro de informação
             ifstream info(entry.path() / "info.txt");
             string linha;
+
+            // percorrer o ficheiro de informação e adicionar a informação à struct
             while(getline(info, linha))
             {
                 if (linha.find("Marca: ") != string::npos)
@@ -155,6 +166,7 @@ int main(int argc, char **argv)
     filesystem::create_directory(dircarros);
     filesystem::create_directory(dirutlizadores);
 
+    // carregar os carros para a struct
     loadcarrosstruct();
 
     // criar a aplicação
