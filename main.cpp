@@ -9,6 +9,13 @@
 using namespace Gtk;
 using namespace std;
 
+struct carros {
+    string marca, modelo, cor, combustivel, estado;
+    int ano, preco;
+} c[1000];
+
+int numerodecarrosatual = 0;
+
 bool pathExists(const filesystem::path p) //verificar se o caminho existe
 {
     return filesystem::exists(p);
@@ -18,6 +25,69 @@ bool ficheirocheck(const string nomeficheiro) //verificar se o ficheiro existe, 
 {
     ifstream ficheiro(nomeficheiro);
     return ficheiro.good();
+}
+
+void loadcarrosstruct()
+{
+    filesystem::path dircarros = "dados/carros";
+    for (int i = 0; i < 1000; i++)
+    {
+        c[i].marca = "";
+        c[i].modelo = "";
+        c[i].cor = "";
+        c[i].combustivel = "";
+        c[i].estado = "";
+        c[i].ano = 0;
+        c[i].preco = 0;
+    }
+
+    numerodecarrosatual = 0;
+    
+    for (const auto & entry : filesystem::directory_iterator(dircarros)) 
+    {
+        if (entry.is_directory()) 
+        {
+            numerodecarrosatual++;
+            ifstream info(entry.path() / "info.txt");
+            string linha;
+            while(getline(info, linha))
+            {
+                if (linha.find("Marca: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].marca = linha.substr(linha.find("Marca: ") + 7);
+                }
+                
+                if (linha.find("Modelo: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].modelo = linha.substr(linha.find("Modelo: ") + 8);
+                }
+                
+                if (linha.find("Cor: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].cor = linha.substr(linha.find("Cor: ") + 5);
+                }
+                
+                if (linha.find("Ano: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].ano = stoi(linha.substr(linha.find("Ano: ") + 5));
+                }
+                
+                if (linha.find("Estado: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].estado = linha.substr(linha.find("Estado: ") + 8);
+                }
+                if (linha.find("Combustivel: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].combustivel = linha.substr(linha.find("Combustivel: ") + 13);
+                }
+                
+                if (linha.find("Preco: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].preco = stoi(linha.substr(linha.find("Preco: ") + 7));
+                }
+            }
+        }
+    }    
 }
 
 void criarutilizador(string nomeutilizador, string palavraPasse)
@@ -56,122 +126,10 @@ void criarcarro(string marca, string modelo, string cor, string combustivel, str
     ficheiro << "Ano: " << ano << endl;
     ficheiro << "Preço: " << preco << endl;
 
-    //fechar o ficheiro
+    //fechar o ficheiro e atualizar os carros
     ficheiro.close();
-}
+    loadcarrosstruct();
 
-//esta a fuder me a cebeca toda, finalizo amanha crl
-void RefreshPesquisaCarros(Gtk::ScrolledWindow &procurarCarrosScrolledWindow, string Marca, string Modelo, string Cor, string Ano, string PrecoMin, string PrecoMax, bool Usado, bool Novo, bool Eletrico, bool Gasolina, bool Diesel, bool Hibrido)
-{
-    //limpar a box
-    procurarCarrosScrolledWindow.remove();
-
-    //criar a nova box
-    Gtk::Box CarrosBox;
-    procurarCarrosScrolledWindow.add(CarrosBox);
-
-    CarrosBox.set_orientation(Gtk::Orientation::ORIENTATION_VERTICAL);
-    CarrosBox.set_spacing(10);
-
-    //procurar os carros
-    for (const auto & entry : filesystem::directory_iterator("dados/carros"))
-    {
-        ifstream ficheiro(entry.path() / "info.txt");
-        string linha;
-        bool tem = false;
-
-        string CarroatualMarca, CarroatualModelo, CarroatualCor, CarroatualCombustivel, CarroatualEstado, CarroatualAno, CarroatualPreco;
-
-        //loop para verificar se o carro tem os filtros
-        while (getline(ficheiro, linha))
-        {
-            if (linha.find("Marca: ") != string::npos)
-            {
-                CarroatualMarca = linha.substr(linha.find("Marca: ") + 7);
-                if (CarroatualMarca == Marca && Marca != "")
-                tem = true;
-                else tem = false;
-            }
-            
-            if (linha.find("Modelo: ") != string::npos)
-            {
-                CarroatualModelo = linha.substr(linha.find("Modelo: ") + 8);
-                if (CarroatualModelo == Modelo && Modelo != "")
-                tem = true;
-                else tem = false;
-            }
-            
-            if (linha.find("Cor: ") != string::npos)
-            {
-                CarroatualCor = linha.substr(linha.find("Cor: ") + 5);
-                if (CarroatualCor == Cor && Cor != "")
-                tem = true;
-                else tem = false;
-            }
-            
-            if (linha.find("Ano: ") != string::npos)
-            {
-                CarroatualAno = linha.substr(linha.find("Ano: ") + 5);
-                if (CarroatualAno == Ano && Ano != "0")
-                tem = true;
-                else tem = false;
-            }
-            
-            if (linha.find("Estado: ") != string::npos)
-            {
-                CarroatualEstado = linha.substr(linha.find("Estado: ") + 8);
-                if ((CarroatualEstado == "Usado" && Usado) || (CarroatualEstado == "Novo" && Novo)) 
-                tem = true;
-                else tem = false;
-            }
-
-            if (linha.find("Combustivel: ") != string::npos)
-            {
-                CarroatualCombustivel = linha.substr(linha.find("Combustivel: ") + 13);
-                if ((CarroatualCombustivel == "Eletrico" && Eletrico) || (CarroatualCombustivel == "Gasolina" && Gasolina) || (CarroatualCombustivel == "Diesel" && Diesel) || (CarroatualCombustivel == "Hibrido" && Hibrido)) 
-                tem = true;
-                else tem = false;
-            }
-            
-            if (linha.find("Preco: ") != string::npos)
-            {
-                CarroatualPreco = linha.substr(linha.find("Preco: ") + 7);
-            }
-        }
-
-        try {
-            if (PrecoMin != "0" && std::stoi(CarroatualPreco) < std::stoi(PrecoMin)) tem = false;
-            if (PrecoMax != "0" && std::stoi(CarroatualPreco) > std::stoi(PrecoMax)) tem = false;
-        } catch (const std::invalid_argument& ia) {
-            std::cerr << "Invalid argument: " << ia.what() << '\n';
-        } catch (const std::out_of_range& oor) {
-            std::cerr << "Out of range: " << oor.what() << '\n';
-        }
-
-        if (tem == true)
-        {
-            Gtk::Box AtualCarroBox;
-            Gtk::Image CarroImage("dados/carros/" + CarroatualMarca + CarroatualModelo + CarroatualAno + "/carro.png");
-            Gtk::Label CarroLabel(CarroatualAno + "" + CarroatualMarca + " " + CarroatualModelo + " " + CarroatualCor), CarroPrecoLabel("Preço: " + CarroatualPreco), CarroEstadoLabel("Estado: " + CarroatualEstado), CarroCombustivelLabel("Combustivel: " + CarroatualCombustivel);
-            Gtk::Button CarroButton("Ver mais");
-
-            CarroImage.set_size_request(70, 70);
-
-            AtualCarroBox.set_orientation(Gtk::Orientation::ORIENTATION_HORIZONTAL);
-            AtualCarroBox.set_spacing(2);
-
-            AtualCarroBox.pack_start(CarroImage, Gtk::PACK_SHRINK);
-            AtualCarroBox.pack_start(CarroLabel, Gtk::PACK_SHRINK);
-            AtualCarroBox.pack_start(CarroPrecoLabel, Gtk::PACK_SHRINK);
-            AtualCarroBox.pack_start(CarroEstadoLabel, Gtk::PACK_SHRINK);
-            AtualCarroBox.pack_start(CarroCombustivelLabel, Gtk::PACK_SHRINK);
-            AtualCarroBox.pack_start(CarroButton, Gtk::PACK_SHRINK);
-
-            CarrosBox.pack_start(AtualCarroBox, Gtk::PACK_SHRINK);
-        }
-
-        ficheiro.close();
-    }
 }
 
 bool temcaracterespecial(string nome) //nao esta a funcionar corretamente
@@ -196,6 +154,8 @@ int main(int argc, char **argv)
     filesystem::path dirutlizadores = "dados/utilizadores";
     filesystem::create_directory(dircarros);
     filesystem::create_directory(dirutlizadores);
+
+    loadcarrosstruct();
 
     // criar a aplicação
     auto app = Application::create(argc, argv, "org.autocarrinhos.esas");
@@ -365,9 +325,58 @@ int main(int argc, char **argv)
     stack.add(registrarScroll, "registrar");
 #endif
 
+#if 1 //Dashboard Admin
+    Box DashboardAdmin, TopBarAdmin;
+    Button editarbuttonCarros("Editar Carros"), criarbuttonCarros("Criar carro"), removerbuttonCarros("Remover Carro"), logoutbuttonadmin("Sair");
+    Stack contentStackAdmin;
+    Label dashboardLabelAdmin("Bem-vindo, admin");
+    Image logoAdmin("assets/logotext-xsmall.png");
+
+    Box editarCarrosBox, criarCarrosBox, removerCarrosBox;
+
+    //Adicionar as paginas para editar, criar e remover carros
+    contentStackAdmin.add(editarCarrosBox, "editarCarros");
+    contentStackAdmin.add(criarCarrosBox, "criarBox");
+    contentStackAdmin.add(removerCarrosBox, "removerBox");
+
+    DashboardAdmin.set_orientation(Orientation::ORIENTATION_VERTICAL);
+    TopBarAdmin.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
+    
+    TopBarAdmin.pack_start(logoAdmin, PACK_SHRINK, 50);
+    TopBarAdmin.pack_start(criarbuttonCarros, PACK_SHRINK, 10);
+    TopBarAdmin.pack_start(editarbuttonCarros, PACK_SHRINK, 10);
+    TopBarAdmin.pack_start(removerbuttonCarros, PACK_SHRINK, 10);
+    TopBarAdmin.pack_start(logoutbuttonadmin, PACK_SHRINK, 10);
+
+    //Mudar para a pagina de editar os carros
+    editarbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
+        contentStackAdmin.set_visible_child("editarCarros");
+        });
+    
+    //Mudar para a pagina de criar os carros
+    criarbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
+        contentStackAdmin.set_visible_child("criarBox"); 
+        });
+    
+    //Mudar para a pagina de remover os carros
+    removerbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
+        contentStackAdmin.set_visible_child("removerBox"); 
+        });
+
+    //Espaçamento entre butões
+    DashboardAdmin.set_spacing(60);
+
+    //adicionar barra para criar, editar e remover carros a dashboard do admin
+    DashboardAdmin.pack_start(TopBarAdmin, PACK_SHRINK);
+    DashboardAdmin.pack_start(contentStackAdmin);
+
+    //adicionar a dashboard ao stack
+    stack.add(DashboardAdmin, "dashboardadmin");
+#endif
+
 #if 1 // Dashboardutilizador
     Box DashboardUser, TopBarUser;
-    Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), Suportebutton("Suporte ao cliente"), logoutbuttonUser("Sair");
+    Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), Suportebutton("Suporte ao cliente"), logoutbuttonuser("Sair");
     Stack contentStackUser;
     Label dashboardLabelUser("Bem-vindo, admin");
     Image logoUser("assets/logocar-xsmall.png");
@@ -390,7 +399,7 @@ int main(int argc, char **argv)
     TopBarUser.pack_start(historicobutton, PACK_SHRINK, 10);
     TopBarUser.pack_start(defbutton, PACK_SHRINK, 10);
     TopBarUser.pack_start(Suportebutton, PACK_SHRINK, 10);
-    TopBarUser.pack_start(logoutbuttonUser, PACK_SHRINK, 10);
+    TopBarUser.pack_start(logoutbuttonuser, PACK_SHRINK, 10);
     TopBarUser.pack_start(dashboardLabelUser, PACK_SHRINK, 50);
 
     //BOX PROCURAR CARROS
@@ -464,70 +473,6 @@ int main(int argc, char **argv)
     FiltrosBar.pack_start(FiltroDiesel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroHibrido, PACK_SHRINK, 5);
 
-    //Adicionar os carros
-    RefreshPesquisaCarros(procurarCarrosScrolledWindow, "", "", "", "", "", "", false, false, false, false, false, false);
-
-    //Refresh ao carros quando os filtros são alterados
-    FiltroMarca.signal_activate().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroModelo.signal_activate().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroCor.signal_activate().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroAno.signal_value_changed().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroPrecoMin.signal_value_changed().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroPrecoMax.signal_value_changed().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroUsado.signal_toggled().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroNovo.signal_toggled().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FilroEletrico.signal_toggled().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroGasolina.signal_toggled().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroDiesel.signal_toggled().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
-    FiltroHibrido.signal_toggled().connect([&procurarCarrosScrolledWindow, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
-    {
-        RefreshPesquisaCarros(procurarCarrosScrolledWindow, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
-    });
-
     //Adicionar os filtros e os carros ao grid
     gridCarros.add(FiltrosLabel);
     gridCarros.attach_next_to(FiltrosBar, FiltrosLabel, PositionType::POS_BOTTOM, 1, 1);
@@ -553,19 +498,20 @@ int main(int argc, char **argv)
     //mudar para a pagina de suporte
     Suportebutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("Suportebox"); });
 
-    //mudar para a pagina de login
-    logoutbuttonUser.signal_clicked().connect([&stack]{ stack.set_visible_child("login"); });
-
     //espaçamento
     DashboardUser.set_spacing(60);
 
-    //adicionar barra de filtros, menus e um texto a deshbord de utilizador
+    //adicionar barra de filtros, menus e um texto a dashboard de utilizador
     DashboardUser.pack_start(TopBarUser, PACK_SHRINK);
     DashboardUser.pack_start(contentStackUser);
 
     //adicionar a dashboard ao stack
     stack.add(DashboardUser, "dashboarduser");
 #endif
+
+    //mudar para a pagina de login
+    logoutbuttonuser.signal_clicked().connect([&stack]{ stack.set_visible_child("login"); });
+    logoutbuttonadmin.signal_clicked().connect([&stack]{ stack.set_visible_child("login"); });
 
 #if 1 // butoes
     loginButton.signal_clicked().connect([&stack, &usernameEntry, &passwordEntry, &dashboardLabelUser, &erro]
@@ -612,10 +558,20 @@ int main(int argc, char **argv)
             //fechar o ficheiro
             info.close();
         }
+        else if (usernameEntry.get_text() == "admin" && passwordEntry.get_text() == "admin")
+        {
+            //mudar para a pagina da dashboard e meter o nome do utilizador na label
+            stack.set_visible_child("dashboardadmin");
+
+            // resetar os campos
+            erro.set_text("");
+            usernameEntry.set_text("");
+            passwordEntry.set_text("");
+        }
         else if (usernameEntry.get_text() == "" || passwordEntry.get_text() == "")
         {
             //erro nos campos vazios
-            erro.set_text("Compos vazios no formulario de login");
+            erro.set_text("Campos vazios no formulario de login");
         }
         else
         {
