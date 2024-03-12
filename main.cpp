@@ -234,12 +234,9 @@ int main(int argc, char **argv)
     ScrolledWindow LoginScroll;
     loginBox.set_spacing(15);
     loginBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
-    loginBox.set_homogeneous(false);
 
     // Scroll para a box
     LoginScroll.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-    LoginScroll.set_hexpand(true);
-    LoginScroll.set_vexpand(true);
 
     // Logo, titulo, erro, entradas, botões
     Image logo("assets/logo-med.png");
@@ -265,17 +262,17 @@ int main(int argc, char **argv)
     passwordEntry.set_visibility(false);
 
     // Adicionar os elementos a box
-    loginBox.pack_start(logo, false, false, 0);
-    loginBox.pack_start(title, false, false, 0);
-    loginBox.pack_start(usernameEntry, false, false, 0);
-    loginBox.pack_start(passwordEntry, false, false, 0);
-    loginBox.pack_start(erro, false, false, 0);
-    loginBox.pack_start(loginButton, false, false, 0);
-    loginBox.pack_start(registerButton, false, false, 0);
+    loginBox.pack_start(logo, PACK_SHRINK, 0);
+    loginBox.pack_start(title, PACK_SHRINK, 0);
+    loginBox.pack_start(usernameEntry, PACK_SHRINK, 0);
+    loginBox.pack_start(passwordEntry, PACK_SHRINK, 0);
+    loginBox.pack_start(erro, PACK_SHRINK, 0);
+    loginBox.pack_start(loginButton, PACK_SHRINK, 0);
+    loginBox.pack_start(registerButton, PACK_SHRINK, 0);
 
     // Adicionar a box ao scroll
     LoginScroll.add(loginBox);
-    LoginScroll.set_margin_bottom(50);
+    LoginScroll.set_margin_bottom(10);
 
     // Adicionar a box ao stack
     stack.add(LoginScroll, "login");
@@ -286,12 +283,9 @@ int main(int argc, char **argv)
     ScrolledWindow registrarScroll;
     registrarBox.set_spacing(15);
     registrarBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
-    registrarBox.set_homogeneous(false);
 
     // Scroll para a box
     registrarScroll.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-    registrarScroll.set_hexpand(true);
-    registrarScroll.set_vexpand(true);
 
     // Logo, titulo, erro, entradas, botões
     Image logoreg("assets/logo-med.png");
@@ -673,9 +667,8 @@ int main(int argc, char **argv)
 #endif
 
     // alinhamento
-    Alignment *align = manage(new Alignment(0.5, 0.5, 0, 1));
+    Alignment *align = manage(new Alignment(0.5, 0.5, 1, 1));
     align->add(stack);
-    align->add(contentStackUser);
     appWindow.add(*align);
     appWindow.show_all();
 
