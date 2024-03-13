@@ -15,6 +15,7 @@ struct carros {
 } c[1000];
 
 int numerodecarrosatual = 0;
+string utilizadoratual = "";
 
 bool pathExists(const filesystem::path p) //verificar se o caminho existe
 {
@@ -400,13 +401,13 @@ int main(int argc, char **argv)
     TopBarUser.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
 
     //adicionar os butoes a barra de cima
-    TopBarUser.pack_start(logoUser, PACK_SHRINK, 50);
-    TopBarUser.pack_start(procurarbuttonCarros, PACK_SHRINK, 10);
-    TopBarUser.pack_start(historicobutton, PACK_SHRINK, 10);
-    TopBarUser.pack_start(defbutton, PACK_SHRINK, 10);
-    TopBarUser.pack_start(Suportebutton, PACK_SHRINK, 10);
-    TopBarUser.pack_start(logoutbuttonuser, PACK_SHRINK, 10);
-    TopBarUser.pack_start(dashboardLabelUser, PACK_SHRINK, 50);
+    TopBarUser.pack_start(logoUser, PACK_EXPAND_PADDING, 25);
+    TopBarUser.pack_start(procurarbuttonCarros, PACK_EXPAND_PADDING, 5);
+    TopBarUser.pack_start(historicobutton, PACK_EXPAND_PADDING, 5);
+    TopBarUser.pack_start(defbutton, PACK_EXPAND_PADDING, 5);
+    TopBarUser.pack_start(Suportebutton, PACK_EXPAND_PADDING, 5);
+    TopBarUser.pack_start(logoutbuttonuser, PACK_EXPAND_PADDING, 5);
+    TopBarUser.pack_start(dashboardLabelUser, PACK_EXPAND_PADDING, 25);
 
     //BOX PROCURAR CARROS
     ScrolledWindow procurarCarrosScrolledWindow;
@@ -457,6 +458,33 @@ int main(int argc, char **argv)
     //Orientacao dos filtros
     FiltrosBar.set_orientation(Orientation::ORIENTATION_VERTICAL);
 
+    //Orientacao dos carros
+    CarrosBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
+    CarrosBox.set_spacing(10);
+    CarrosBox.set_name("Carros");
+
+
+    //Adicionar os carros
+    for (int i = 0; i < numerodecarrosatual; i++)
+    {
+        Box carro;
+        carro.set_orientation(Orientation::ORIENTATION_VERTICAL);
+        carro.set_spacing(4);
+
+        Label marca("Marca: " + c[i].marca), modelo("Modelo: " + c[i].modelo), cor("Cor: " + c[i].cor), combustivel("Combustivel: " + c[i].combustivel), estado("Estado: " + c[i].estado), ano("Ano: " + to_string(c[i].ano)), preco("Preço: " + to_string(c[i].preco));
+
+        carro.pack_start(marca, PACK_SHRINK);
+        carro.pack_start(modelo, PACK_SHRINK);
+        carro.pack_start(cor, PACK_SHRINK);
+        carro.pack_start(combustivel, PACK_SHRINK);
+        carro.pack_start(estado, PACK_SHRINK);
+        carro.pack_start(ano, PACK_SHRINK);
+        carro.pack_start(preco, PACK_SHRINK);
+
+        CarrosBox.pack_start(carro, PACK_SHRINK);
+        CarrosBox.show_all_children();
+    }
+
     //Scroll para os carros
     procurarCarrosScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     procurarCarrosScrolledWindow.add(CarrosBox);
@@ -486,7 +514,7 @@ int main(int argc, char **argv)
     gridCarros.attach_next_to(procurarCarrosScrolledWindow, FiltrosBar, PositionType::POS_RIGHT, 1, 1);
 
     //definir o espaçamento do grid
-    gridCarros.set_column_spacing(350);
+    gridCarros.set_column_spacing(400);
     gridCarros.set_row_spacing(10);
 
     //adicionar o grid ao box
@@ -508,7 +536,7 @@ int main(int argc, char **argv)
     DashboardUser.set_spacing(60);
 
     //adicionar barra de filtros, menus e um texto a dashboard de utilizador
-    DashboardUser.pack_start(TopBarUser, PACK_SHRINK);
+    DashboardUser.pack_start(TopBarUser);
     DashboardUser.pack_start(contentStackUser);
 
     //adicionar a dashboard ao stack
@@ -516,8 +544,14 @@ int main(int argc, char **argv)
 #endif
 
     //mudar para a pagina de login
-    logoutbuttonuser.signal_clicked().connect([&stack]{ stack.set_visible_child("login"); });
-    logoutbuttonadmin.signal_clicked().connect([&stack]{ stack.set_visible_child("login"); });
+    logoutbuttonuser.signal_clicked().connect([&stack]{ 
+        stack.set_visible_child("login");
+        utilizadoratual = "";
+        });
+    logoutbuttonadmin.signal_clicked().connect([&stack]{ 
+        stack.set_visible_child("login");
+        utilizadoratual = "";
+        });
 
 #if 1 // butoes
     loginButton.signal_clicked().connect([&stack, &usernameEntry, &passwordEntry, &dashboardLabelUser, &erro]
@@ -549,6 +583,8 @@ int main(int argc, char **argv)
                 //mudar para a pagina da dashboard e meter o nome do utilizador na label
                 dashboardLabelUser.set_text("Bem-vindo " + usernameEntry.get_text() + "!");
                 stack.set_visible_child("dashboarduser");
+
+                utilizadoratual = usernameEntry.get_text();
 
                 // resetar os campos
                 erro.set_text("");

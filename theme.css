@@ -39,3 +39,13 @@ entry {
     color: #ffffff;
     background-color: transparent;
 }
+
+#Carros {
+    background-color: #1d1f1f;
+    color: #ffffff;
+}
+
+#carros > label {
+    color: #ffffff;
+    background-color: transparent;
+}
