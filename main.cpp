@@ -136,7 +136,7 @@ void criarcarro(string marca, string modelo, string cor, string combustivel, str
     ficheiro << "Combustivel: " << combustivel << endl;
     ficheiro << "Estado: " << estado << endl;
     ficheiro << "Ano: " << ano << endl;
-    ficheiro << "Preço: " << preco << endl;
+    ficheiro << "Preco: " << preco << endl;
 
     //fechar o ficheiro e atualizar os carros
     ficheiro.close();
@@ -355,6 +355,30 @@ int main(int argc, char **argv)
     TopBarAdmin.pack_start(removerbuttonCarros, PACK_SHRINK, 10);
     TopBarAdmin.pack_start(logoutbuttonadmin, PACK_SHRINK, 10);
 
+    //Criar os espaços para escrever as informações do carro
+    Entry criarCarroMarca, criarCarroModelo, criarCarroCor, criarCarroCombustivel,criarCarroEstado, criarCarroAno, criarCarroPreco;
+    Button criarCarroConfirm("Confirmar"), criarCarroCancel("Cancelar");
+    Label criarCarroLabel("Criar Carro");
+
+    criarCarroMarca.set_placeholder_text("Digite a marca do carro");
+    criarcarrimodelo.set_placeholder_text("Digite o modelo do carro");
+    criarCarroCor.set_placeholder_text("Digite a cor do carro");
+    criarCarroCombustivel.set_placeholder_text("Digite o consumo de combustivel");
+    criarCarroAno.set_placeholder_text("Digite o ano do carro");
+    criarCarroPreco.set_placeholder_text("Digite o preco do carro");
+    criarCarroEstado.setplaceholder_text("Digite o estado do carro");
+
+
+    criarCarroBox.pack_start(criarCarroLabel, PACK_SHRINK, 5);
+    HSeparator separador = HSeparator();
+    VBox Cbox = VBox(&separador, &criarCarroConfirm, NULL);
+    Cbox.set_homogeneous(FALSE);
+    Cbox.set_spacing(20);
+    criarCarroBox.add(Cbox);
+
+    criarCarrosBox.pack_start(criarCarroConfirm, PACK_SHRINK, 5);
+    
+
     //Mudar para a pagina de editar os carros
     editarbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
         contentStackAdmin.set_visible_child("editarCarros");
@@ -362,7 +386,7 @@ int main(int argc, char **argv)
     
     //Mudar para a pagina de criar os carros
     criarbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
-        contentStackAdmin.set_visible_child("criarBox"); 
+        contentStackAdmin.set_visible_child("criarBox");
         });
     
     //Mudar para a pagina de remover os carros
