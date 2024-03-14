@@ -366,36 +366,37 @@ int main(int argc, char **argv)
     criarCarrosBox.pack_start(criarCarroErro, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroConfirm, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroCancel, PACK_SHRINK, 5);
-    
-    editarbuttonCarros.signal_clicked().connect([&criarCarroMarca, &criarCarroModelo, &criarCarroCor, &criarCarroCombustivel, &criarCarroEstado, &criarCarroAno, &criarCarroPreco, &criarCarroErro]){
+
+    criarCarroConfirm.signal_clicked().connect([&criarCarroMarca, &criarCarroModelo, &criarCarroCor, &criarCarroCombustivel, &criarCarroEstado, &criarCarroAno, &criarCarroPreco, &criarCarroErro]
+    {
         bool tem = false;
 
-        if(criarCarroMarca == ""){
+        if(criarCarroMarca.get_text() == ""){
             tem = true;
         }
-        if(criarCarroModelo == ""){
+        if(criarCarroModelo.get_text() == ""){
             tem = true;
         }
-        if(criarCarroCor == ""){
+        if(criarCarroCor.get_text() == ""){
             tem = true;
         }
-        if(criarCarroCombustivel == ""){
+        if(criarCarroCombustivel.get_text() == ""){
             tem = true;
         }
-        if(criarCarroEstado == ""){
+        if(criarCarroEstado.get_text() == ""){
             tem = true;
         }
-        if(criarCarroAno == ""){
+        if(criarCarroAno.get_text() == ""){
             tem = true;
         }
-        if(criarCarroPreco == ""){
+        if(criarCarroPreco.get_text() == ""){
             tem = true;
         }
         if(tem == true){
             criarCarroErro.set_text("Preencha todos os campos!");
         }
         else{
-            criarcarro(criarCarroMarca.get_text(), criarCarroModelo.get_text(), criarCarroCor.get_text(), criarCarroCombustivel.get_text(), criarCarroEstado.get_text(), criarCarroAno.get_text(), criarCarroPreco.get_text(),);
+            criarcarro(criarCarroMarca.get_text(), criarCarroModelo.get_text(), criarCarroCor.get_text(), criarCarroCombustivel.get_text(), criarCarroEstado.get_text(), criarCarroAno.get_text(), criarCarroPreco.get_text());
             criarCarroMarca.set_text("");
             criarCarroModelo.set_text("");
             criarCarroCor.set_text("");
@@ -406,7 +407,7 @@ int main(int argc, char **argv)
             criarCarroErro.set_text("");
 
         }
-    }
+    });
 
     //Mudar para a pagina de editar os carros
     editarbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
