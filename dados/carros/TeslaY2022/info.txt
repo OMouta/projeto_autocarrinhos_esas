@@ -1,0 +1,8 @@
+Marca: Tesla
+Modelo: Y
+Cor: Branco
+Combustivel: Eletrico
+Estado: Novo
+Ano: 2022
+Preco: 170000
+Imagem: dados/carros/TeslaY2022/Tesla_Model_Y_1X7A6211.jpg

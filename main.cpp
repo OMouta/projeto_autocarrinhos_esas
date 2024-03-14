@@ -10,22 +10,20 @@ using namespace Gtk;
 using namespace std;
 
 struct carros {
-    string marca, modelo, cor, combustivel, estado;
+    string marca, modelo, cor, combustivel, estado, imagempath;
     int ano, preco;
 } c[1000];
 
 int numerodecarrosatual = 0;
 string utilizadoratual = "";
 
+void mostrardebug(const char* msg) {
+    MessageBoxA(NULL, msg, "DEBUG", MB_ICONASTERISK | MB_OK);
+}
+
 bool pathExists(const filesystem::path p) //verificar se o caminho existe
 {
     return filesystem::exists(p);
-}
-
-bool ficheirocheck(const string nomeficheiro) //verificar se o ficheiro existe, atualmente nao esta a ser usado
-{
-    ifstream ficheiro(nomeficheiro);
-    return ficheiro.good();
 }
 
 void loadcarrosstruct()
@@ -97,9 +95,65 @@ void loadcarrosstruct()
                 {
                     c[numerodecarrosatual - 1].preco = stoi(linha.substr(linha.find("Preco: ") + 7));
                 }
+
+                if (linha.find("Imagem: ") != string::npos)
+                {
+                    c[numerodecarrosatual - 1].imagempath = linha.substr(linha.find("Imagem: ") + 8);
+                }
             }
         }
     }    
+}
+
+void mostrarcarros(Box& CarrosBox)
+{
+    // limpar a box
+    vector<Widget*> carros = CarrosBox.get_children();
+    for(auto carro : carros)
+    {
+        CarrosBox.remove(*carro);
+        delete carro;
+    }
+
+    // percorrer a struct e adicionar os carros à box
+    for (int i = 0; i < numerodecarrosatual; i++)
+    {
+        // criar a box do carro
+        Box* carro = new Box(Orientation::ORIENTATION_VERTICAL);
+        carro->set_spacing(4);
+
+        // criar as labels do carro
+        Label* marca = new Label("Marca: " + c[i].marca);
+        Label* modelo = new Label("Modelo: " + c[i].modelo);
+        Label* cor = new Label("Cor: " + c[i].cor);
+        Label* combustivel = new Label("Combustivel: " + c[i].combustivel);
+        Label* estado = new Label("Estado: " + c[i].estado);
+        Label* ano = new Label("Ano: " + to_string(c[i].ano));
+        Label* preco = new Label("Preço: " + to_string(c[i].preco));
+
+        // adicionar as labels à box do carro
+        carro->pack_start(*marca, PACK_SHRINK);
+        carro->pack_start(*modelo, PACK_SHRINK);
+        carro->pack_start(*cor, PACK_SHRINK);
+        carro->pack_start(*combustivel, PACK_SHRINK);
+        carro->pack_start(*estado, PACK_SHRINK);
+        carro->pack_start(*ano, PACK_SHRINK);
+        carro->pack_start(*preco, PACK_SHRINK);
+
+        // adicionar a box do carro à box dos carros
+        marca->set_name("Carros");
+        modelo->set_name("Carros");
+        cor->set_name("Carros");
+        combustivel->set_name("Carros");
+        estado->set_name("Carros");
+        ano->set_name("Carros");
+        preco->set_name("Carros");
+        carro->set_name("Carros");
+
+        // adicionar a box do carro à box dos carros
+        CarrosBox.pack_start(*carro);
+        CarrosBox.show_all();
+    }
 }
 
 void criarutilizador(string nomeutilizador, string palavraPasse)
@@ -123,11 +177,16 @@ void criarutilizador(string nomeutilizador, string palavraPasse)
     ficheiro.close();
 }
 
-void criarcarro(string marca, string modelo, string cor, string combustivel, string estado, string ano, string preco)
+void criarcarro(string marca, string modelo, string cor, string combustivel, string estado, string ano, string preco, string imagempath)
 {
     //criar a pasta do carro e o ficheiro de informação
     filesystem::create_directory("dados/carros/" + marca + modelo + ano);
     ofstream ficheiro("dados/carros/" + marca + modelo + ano + "/info.txt");
+
+    //adiciona a imagem à pasta do carro
+    filesystem::path sourcePath = imagempath;
+    filesystem::path imagemdestinationPath = "dados/carros/" + marca + modelo + ano + "/" + sourcePath.filename().string();
+    filesystem::copy(sourcePath, imagemdestinationPath, filesystem::copy_options::overwrite_existing);
 
     //escrever a informação no ficheiro
     ficheiro << "Marca: " << marca << endl;
@@ -137,11 +196,13 @@ void criarcarro(string marca, string modelo, string cor, string combustivel, str
     ficheiro << "Estado: " << estado << endl;
     ficheiro << "Ano: " << ano << endl;
     ficheiro << "Preco: " << preco << endl;
+    ficheiro << "Imagem: " << "dados/carros/" + marca + modelo + ano + "/" + sourcePath.filename().string() << endl;
 
     //fechar o ficheiro e atualizar os carros
     ficheiro.close();
-    loadcarrosstruct();
 
+    //atualizar os carros
+    loadcarrosstruct();
 }
 
 bool temcaracterespecial(string nome) //nao esta a funcionar corretamente
@@ -161,6 +222,10 @@ bool temcaracterespecial(string nome) //nao esta a funcionar corretamente
 
 int main(int argc, char **argv)
 {
+
+// os #if e #endif é pra organizar o codigo, o 1 ativa e o 0 desativa a parte do codigo! MANTER NO 1 PARA A FUNCIONAR CORRETAMENTE!
+
+#if 1 // Inicialização
     // verificar se as pastas existem, se não existirem, criar
     filesystem::path dircarros = "dados/carros";
     filesystem::path dirutlizadores = "dados/utilizadores";
@@ -180,7 +245,7 @@ int main(int argc, char **argv)
     // verificar se o css foi carregado corretamente
     if (!cssProvider->load_from_path("theme.css"))
     {
-        cerr << "CSS Falhou a abrir!.\n";
+        return 1;
     }
     else
     {
@@ -218,17 +283,16 @@ int main(int argc, char **argv)
     {
         appWindow.set_icon_from_file("assets/logocar-small.ico");
     }
-    catch (const Glib::FileError &ex)
+    catch (const Gio::ResourceError &ex)
     {
-        cerr << "Erro: " << ex.what() << endl;
+        mostrardebug("Erro ao carregar o logo");
     }
 
     // criar o stack
     Stack stack;
     stack.set_transition_type(StackTransitionType::STACK_TRANSITION_TYPE_CROSSFADE);
     stack.set_transition_duration(300);
-
-    // os #if e #endif é pra organizar o codigo, o 1 ativa e o 0 desativa a parte do codigo! MANTER NO 1 PARA A FUNCIONAR CORRETAMENTE!
+#endif
 
 #if 1 // Log in
     Box loginBox;
@@ -317,17 +381,16 @@ int main(int argc, char **argv)
 
 #if 1 //Dashboard Admin
     Box DashboardAdmin, TopBarAdmin;
-    Button editarbuttonCarros("Editar Carros"), criarbuttonCarros("Criar carro"), removerbuttonCarros("Remover Carro"), logoutbuttonadmin("Sair");
+    Button editarbuttonCarros("Gerenciar Carros"), criarbuttonCarros("Criar carro"), logoutbuttonadmin("Sair");
     Stack contentStackAdmin;
     Label dashboardLabelAdmin("Bem-vindo, admin");
     Image logoAdmin("assets/logotext-xsmall.png");
 
-    Box editarCarrosBox, criarCarrosBox, removerCarrosBox;
+    Box editarCarrosBox, criarCarrosBox;
 
     //Adicionar as paginas para editar, criar e remover carros
-    contentStackAdmin.add(editarCarrosBox, "editarCarros");
     contentStackAdmin.add(criarCarrosBox, "criarBox");
-    contentStackAdmin.add(removerCarrosBox, "removerBox");
+    contentStackAdmin.add(editarCarrosBox, "editarBox");
 
     DashboardAdmin.set_orientation(Orientation::ORIENTATION_VERTICAL);
     TopBarAdmin.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
@@ -335,23 +398,34 @@ int main(int argc, char **argv)
     TopBarAdmin.pack_start(logoAdmin, PACK_SHRINK, 50);
     TopBarAdmin.pack_start(criarbuttonCarros, PACK_SHRINK, 10);
     TopBarAdmin.pack_start(editarbuttonCarros, PACK_SHRINK, 10);
-    TopBarAdmin.pack_start(removerbuttonCarros, PACK_SHRINK, 10);
     TopBarAdmin.pack_start(logoutbuttonadmin, PACK_SHRINK, 10);
+
+    TopBarAdmin.set_center_widget(dashboardLabelAdmin);
 
     //Criar os espaços para escrever as informações do carro
     Entry criarCarroMarca, criarCarroModelo, criarCarroCor, criarCarroCombustivel,criarCarroEstado, criarCarroAno, criarCarroPreco;
     Button criarCarroConfirm("Confirmar"), criarCarroCancel("Cancelar");
     Label criarCarroLabel("Criar Carro"), criarCarroErro("");
+    FileChooserButton criarCarroImagem("Escolher imagem", FILE_CHOOSER_ACTION_OPEN);
+    string imagempath;
+    Image criarCarroImagemPreview;
+
+    Glib::RefPtr<FileFilter> filtroparaimagens = FileFilter::create();
+    filtroparaimagens->set_name("Imagens");
+    filtroparaimagens->add_pattern("*.png");
+    filtroparaimagens->add_pattern("*.jpeg");
+    filtroparaimagens->add_pattern("*.jpg");
+    criarCarroImagem.add_filter(filtroparaimagens);
 
     criarCarroErro.set_name("erro");
 
-    criarCarroMarca.set_placeholder_text("Digite a marca do carro");
-    criarCarroModelo.set_placeholder_text("Digite o modelo do carro");
-    criarCarroCor.set_placeholder_text("Digite a cor do carro");
-    criarCarroCombustivel.set_placeholder_text("Digite o consumo de combustivel");
-    criarCarroAno.set_placeholder_text("Digite o ano do carro");
-    criarCarroPreco.set_placeholder_text("Digite o preco do carro");
-    criarCarroEstado.set_placeholder_text("Digite o estado do carro");
+    criarCarroMarca.set_placeholder_text("Marca do carro");
+    criarCarroModelo.set_placeholder_text("Modelo do carro");
+    criarCarroCor.set_placeholder_text("Cor do carro");
+    criarCarroCombustivel.set_placeholder_text("Tipo de combustivel");
+    criarCarroAno.set_placeholder_text("Ano do carro");
+    criarCarroPreco.set_placeholder_text("Preco do carro");
+    criarCarroEstado.set_placeholder_text("Estado do carro");
 
     criarCarrosBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
 
@@ -363,14 +437,26 @@ int main(int argc, char **argv)
     criarCarrosBox.pack_start(criarCarroEstado, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroAno, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroPreco, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroImagem, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroImagemPreview, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroErro, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroConfirm, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroCancel, PACK_SHRINK, 5);
 
-    criarCarroConfirm.signal_clicked().connect([&criarCarroMarca, &criarCarroModelo, &criarCarroCor, &criarCarroCombustivel, &criarCarroEstado, &criarCarroAno, &criarCarroPreco, &criarCarroErro]
+    criarCarroImagem.signal_file_set().connect([&criarCarroImagem, &imagempath, &criarCarroImagemPreview]() {
+        imagempath = criarCarroImagem.get_filename();
+
+        //carregar a imagem e mostrar no preview
+        auto pixbuf = Gdk::Pixbuf::create_from_file(imagempath);
+        auto novaimagem = pixbuf->scale_simple(100, 100, Gdk::INTERP_BILINEAR);
+        criarCarroImagemPreview.set(novaimagem);
+    });
+
+    criarCarroConfirm.signal_clicked().connect([&criarCarroMarca, &criarCarroModelo, &criarCarroCor, &criarCarroCombustivel, &criarCarroEstado, &criarCarroAno, &criarCarroPreco, &criarCarroErro, &criarCarroImagemPreview, &imagempath, &criarCarroImagem]
     {
         bool tem = false;
 
+        //verificar se os campos estão preenchidos
         if(criarCarroMarca.get_text() == ""){
             tem = true;
         }
@@ -392,11 +478,20 @@ int main(int argc, char **argv)
         if(criarCarroPreco.get_text() == ""){
             tem = true;
         }
+        if(imagempath == ""){
+            tem = true;
+        }
+
+        //se nao estiver preenchido, mostrar erro
         if(tem == true){
             criarCarroErro.set_text("Preencha todos os campos!");
         }
-        else{
-            criarcarro(criarCarroMarca.get_text(), criarCarroModelo.get_text(), criarCarroCor.get_text(), criarCarroCombustivel.get_text(), criarCarroEstado.get_text(), criarCarroAno.get_text(), criarCarroPreco.get_text());
+        else
+        {
+            //chama a função para criar o carro
+            criarcarro(criarCarroMarca.get_text(), criarCarroModelo.get_text(), criarCarroCor.get_text(), criarCarroCombustivel.get_text(), criarCarroEstado.get_text(), criarCarroAno.get_text(), criarCarroPreco.get_text(), imagempath);
+            
+            //resetar os campos
             criarCarroMarca.set_text("");
             criarCarroModelo.set_text("");
             criarCarroCor.set_text("");
@@ -405,23 +500,35 @@ int main(int argc, char **argv)
             criarCarroAno.set_text("");
             criarCarroPreco.set_text("");
             criarCarroErro.set_text("");
-
+            criarCarroImagemPreview.set("");
+            imagempath = "";
+            criarCarroImagem.unselect_all();
         }
+    });
+
+    criarCarroCancel.signal_clicked().connect([&criarCarroMarca, &criarCarroModelo, &criarCarroCor, &criarCarroCombustivel, &criarCarroEstado, &criarCarroAno, &criarCarroPreco, &criarCarroErro, &criarCarroImagemPreview, &imagempath, &criarCarroImagem]
+    {
+        criarCarroMarca.set_text("");
+        criarCarroModelo.set_text("");
+        criarCarroCor.set_text("");
+        criarCarroCombustivel.set_text("");
+        criarCarroEstado.set_text("");
+        criarCarroAno.set_text("");
+        criarCarroPreco.set_text("");
+        criarCarroErro.set_text("");
+        criarCarroImagemPreview.set("");
+        imagempath = "";
+        criarCarroImagem.unselect_all();
     });
 
     //Mudar para a pagina de editar os carros
     editarbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
-        contentStackAdmin.set_visible_child("editarCarros");
+        contentStackAdmin.set_visible_child("editarBox");
         });
     
     //Mudar para a pagina de criar os carros
     criarbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
         contentStackAdmin.set_visible_child("criarBox");
-        });
-    
-    //Mudar para a pagina de remover os carros
-    removerbuttonCarros.signal_clicked().connect([&contentStackAdmin]{ 
-        contentStackAdmin.set_visible_child("removerBox"); 
         });
 
     //Espaçamento entre butões
@@ -435,7 +542,7 @@ int main(int argc, char **argv)
     stack.add(DashboardAdmin, "dashboardadmin");
 #endif
 
-#if 1 // Dashboardutilizador
+#if 1 // Dashboard Utilizador
     Box DashboardUser, TopBarUser;
     Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), Suportebutton("Suporte ao cliente"), logoutbuttonuser("Sair");
     Stack contentStackUser;
@@ -521,31 +628,8 @@ int main(int argc, char **argv)
     //Orientacao dos carros
     CarrosBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
     CarrosBox.set_spacing(10);
-    CarrosBox.set_name("Carros");
-
-
-    //Adicionar os carros
-    /*
-    for (int i = 0; i < numerodecarrosatual; i++)
-    {
-        Box carro;
-        carro.set_orientation(Orientation::ORIENTATION_VERTICAL);
-        carro.set_spacing(4);
-
-        Label marca("Marca: " + c[i].marca), modelo("Modelo: " + c[i].modelo), cor("Cor: " + c[i].cor), combustivel("Combustivel: " + c[i].combustivel), estado("Estado: " + c[i].estado), ano("Ano: " + to_string(c[i].ano)), preco("Preço: " + to_string(c[i].preco));
-
-        carro.pack_start(marca, PACK_SHRINK);
-        carro.pack_start(modelo, PACK_SHRINK);
-        carro.pack_start(cor, PACK_SHRINK);
-        carro.pack_start(combustivel, PACK_SHRINK);
-        carro.pack_start(estado, PACK_SHRINK);
-        carro.pack_start(ano, PACK_SHRINK);
-        carro.pack_start(preco, PACK_SHRINK);
-
-        CarrosBox.pack_start(carro, PACK_SHRINK);
-        CarrosBox.show_all_children();
-    }
-    */
+    CarrosBox.set_hexpand(true);
+    CarrosBox.set_hexpand_set(true);
 
     //Scroll para os carros
     procurarCarrosScrolledWindow.set_policy(POLICY_AUTOMATIC, POLICY_AUTOMATIC);
@@ -570,25 +654,101 @@ int main(int argc, char **argv)
     FiltrosBar.pack_start(FiltroDiesel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroHibrido, PACK_SHRINK, 5);
 
-    //Adicionar os filtros e os carros ao grid
-    gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
-    gridCarros.pack_start(procurarCarrosScrolledWindow, PACK_SHRINK);
-    gridCarros.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
+    //Adicionar os carros
+    mostrarcarros(CarrosBox);
+
+    //Conectar os filtros
+    FiltroMarca.signal_changed().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroModelo.signal_changed().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroCor.signal_changed().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroAno.signal_value_changed().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroPrecoMin.signal_value_changed().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroPrecoMax.signal_value_changed().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroUsado.signal_toggled().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroNovo.signal_toggled().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FilroEletrico.signal_toggled().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroGasolina.signal_toggled().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroDiesel.signal_toggled().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
+
+    FiltroHibrido.signal_toggled().connect([&CarrosBox]
+    {
+        mostrarcarros(CarrosBox);
+    });
 
     //adicionar o grid ao box
-    procurarCarrosBox.pack_start(gridCarros, PACK_SHRINK);
+    procurarCarrosBox.pack_start(gridCarros);
+
+    //Adicionar os filtros e os carros ao grid
+    gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
+    gridCarros.pack_start(procurarCarrosScrolledWindow);
+    gridCarros.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
 
     //mudar para a pagina de procurar carros
-    procurarbuttonCarros.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("procurarCarros"); });
+    procurarbuttonCarros.signal_clicked().connect([&contentStackUser]
+    {
+        contentStackUser.set_visible_child("procurarCarros");
+    });
 
     //mudar para a pagina de historico
-    historicobutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("historicobox"); });
+    historicobutton.signal_clicked().connect([&contentStackUser]
+    {
+        contentStackUser.set_visible_child("historicobox");
+    });
 
     //mudar para a pagina de definições
-    defbutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("defbox"); });
+    defbutton.signal_clicked().connect([&contentStackUser]
+    {
+        contentStackUser.set_visible_child("defbox");
+    });
 
     //mudar para a pagina de suporte
-    Suportebutton.signal_clicked().connect([&contentStackUser]{ contentStackUser.set_visible_child("Suportebox"); });
+    Suportebutton.signal_clicked().connect([&contentStackUser]
+    {
+        contentStackUser.set_visible_child("Suportebox");
+    });
 
     //espaçamento
     DashboardUser.set_spacing(60);
@@ -601,17 +761,7 @@ int main(int argc, char **argv)
     stack.add(DashboardUser, "dashboarduser");
 #endif
 
-    //mudar para a pagina de login
-    logoutbuttonuser.signal_clicked().connect([&stack]{ 
-        stack.set_visible_child("login");
-        utilizadoratual = "";
-        });
-    logoutbuttonadmin.signal_clicked().connect([&stack]{ 
-        stack.set_visible_child("login");
-        utilizadoratual = "";
-        });
-
-#if 1 // butoes
+#if 1 // Butoes de ação
     loginButton.signal_clicked().connect([&stack, &usernameEntry, &passwordEntry, &dashboardLabelUser, &erro]
     {
         
@@ -667,6 +817,26 @@ int main(int argc, char **argv)
             erro.set_text("");
             usernameEntry.set_text("");
             passwordEntry.set_text("");
+        }
+        else if (usernameEntry.get_text() == "Debugshowcontas")
+        {
+            //mostrar os utilizadores
+            string utilizadores = "Utilizadores: \n";
+            for (const auto & entry : filesystem::directory_iterator("dados/utilizadores"))
+            {
+                utilizadores += entry.path().filename().string() + "\n";
+            }
+            mostrardebug(utilizadores.c_str());
+        }
+        else if (usernameEntry.get_text() == "Debugshowcarros")
+        {
+            //mostrar os carros
+            string carros = "Carros: \n";
+            for (const auto & entry : filesystem::directory_iterator("dados/carros"))
+            {
+                carros += entry.path().filename().string() + "\n";
+            }
+            mostrardebug(carros.c_str());
         }
         else if (usernameEntry.get_text() == "" || passwordEntry.get_text() == "")
         {
@@ -757,6 +927,17 @@ int main(int argc, char **argv)
         passwordregconfirm.set_text("");
         stack.set_visible_child("login"); 
     });
+
+    //mudar para a pagina de login
+    logoutbuttonuser.signal_clicked().connect([&stack]{ 
+        stack.set_visible_child("login");
+        utilizadoratual = "";
+        });
+
+    logoutbuttonadmin.signal_clicked().connect([&stack]{ 
+        stack.set_visible_child("login");
+        utilizadoratual = "";
+        });
 
 #endif
 
