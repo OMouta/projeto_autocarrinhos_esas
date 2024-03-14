@@ -8,6 +8,7 @@
 
 using namespace Gtk;
 using namespace std;
+using namespace Glib;
 
 struct carros {
     string marca, modelo, cor, combustivel, estado;
@@ -340,7 +341,7 @@ int main(int argc, char **argv)
 
     //Criar os espaços para escrever as informações do carro
     Entry criarCarroMarca, criarCarroModelo, criarCarroCor, criarCarroCombustivel,criarCarroEstado, criarCarroAno, criarCarroPreco;
-    Button criarCarroConfirm("Confirmar"), criarCarroCancel("Cancelar");
+    Button criarCarroConfirm("Confirmar"), criarCarroCancel("Cancelar"), criarCarroImagem("Adjunte uma imagem");
     Label criarCarroLabel("Criar Carro"), criarCarroErro("");
 
     criarCarroErro.set_name("erro");
@@ -364,8 +365,11 @@ int main(int argc, char **argv)
     criarCarrosBox.pack_start(criarCarroAno, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroPreco, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroErro, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroImagem, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroConfirm, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroCancel, PACK_SHRINK, 5);
+
+    //Falta conseguir adjuntar as imagens
 
     criarCarroConfirm.signal_clicked().connect([&criarCarroMarca, &criarCarroModelo, &criarCarroCor, &criarCarroCombustivel, &criarCarroEstado, &criarCarroAno, &criarCarroPreco, &criarCarroErro]
     {
