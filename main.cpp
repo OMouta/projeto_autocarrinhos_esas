@@ -240,7 +240,7 @@ int main(int argc, char **argv)
     LoginScroll.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
     // Logo, titulo, erro, entradas, botões
-    Image logo("assets/logo-med.png");
+    Image logo("assets/logocar-small.png");
 
     Label title("Entre na sua conta"), erro("");
     title.set_name("title");
@@ -248,14 +248,6 @@ int main(int argc, char **argv)
 
     Entry usernameEntry, passwordEntry;
     Button loginButton("Entrar"), registerButton("Registrar");
-
-    // Tamanho dos elementos
-    usernameEntry.set_size_request(70, 50);
-    passwordEntry.set_size_request(70, 50);
-    loginButton.set_size_request(70, 50);
-    registerButton.set_size_request(70, 50);
-    erro.set_size_request(70, 5);
-    logo.set_size_request(70, 70);
 
     // Placeholders
     usernameEntry.set_placeholder_text("Utilizador");
@@ -289,7 +281,7 @@ int main(int argc, char **argv)
     registrarScroll.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
     // Logo, titulo, erro, entradas, botões
-    Image logoreg("assets/logo-med.png");
+    Image logoreg("assets/logocar-small.png");
 
     Label titlereg("Crie a sua conta"), erroreg("");
     titlereg.set_name("title");
@@ -297,15 +289,6 @@ int main(int argc, char **argv)
 
     Entry usernamereg, passwordreg, passwordregconfirm;
     Button registerButton2("Registar"), cancelarreg("Cancelar");
-
-    // Tamanho dos elementos
-    usernamereg.set_size_request(70, 50);
-    passwordreg.set_size_request(70, 50);
-    passwordregconfirm.set_size_request(70, 50);
-    registerButton2.set_size_request(70, 50);
-    cancelarreg.set_size_request(70, 50);
-    erroreg.set_size_request(70, 5);
-    logo.set_size_request(70, 70);
 
     // Placeholders
     usernamereg.set_placeholder_text("Nome de utilizador");
@@ -361,22 +344,25 @@ int main(int argc, char **argv)
     Label criarCarroLabel("Criar Carro");
 
     criarCarroMarca.set_placeholder_text("Digite a marca do carro");
-    criarcarrimodelo.set_placeholder_text("Digite o modelo do carro");
+    criarCarroModelo.set_placeholder_text("Digite o modelo do carro");
     criarCarroCor.set_placeholder_text("Digite a cor do carro");
     criarCarroCombustivel.set_placeholder_text("Digite o consumo de combustivel");
     criarCarroAno.set_placeholder_text("Digite o ano do carro");
     criarCarroPreco.set_placeholder_text("Digite o preco do carro");
-    criarCarroEstado.setplaceholder_text("Digite o estado do carro");
+    criarCarroEstado.set_placeholder_text("Digite o estado do carro");
 
+    criarCarrosBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
 
-    criarCarroBox.pack_start(criarCarroLabel, PACK_SHRINK, 5);
-    HSeparator separador = HSeparator();
-    VBox Cbox = VBox(&separador, &criarCarroConfirm, NULL);
-    Cbox.set_homogeneous(FALSE);
-    Cbox.set_spacing(20);
-    criarCarroBox.add(Cbox);
-
+    criarCarrosBox.pack_start(criarCarroLabel, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroMarca, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroModelo, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroCor, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroCombustivel, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroEstado, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroAno, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroPreco, PACK_SHRINK, 5);
     criarCarrosBox.pack_start(criarCarroConfirm, PACK_SHRINK, 5);
+    criarCarrosBox.pack_start(criarCarroCancel, PACK_SHRINK, 5);
     
 
     //Mudar para a pagina de editar os carros
