@@ -400,23 +400,29 @@ int main(int argc, char **argv)
     DashboardUser.set_orientation(Orientation::ORIENTATION_VERTICAL);
     TopBarUser.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
 
+    TopBarUser.set_center_widget(dashboardLabelUser);
+    TopBarUser.set_spacing(10);
+
     //adicionar os butoes a barra de cima
-    TopBarUser.pack_start(logoUser, PACK_EXPAND_PADDING, 25);
-    TopBarUser.pack_start(procurarbuttonCarros, PACK_EXPAND_PADDING, 5);
-    TopBarUser.pack_start(historicobutton, PACK_EXPAND_PADDING, 5);
-    TopBarUser.pack_start(defbutton, PACK_EXPAND_PADDING, 5);
-    TopBarUser.pack_start(Suportebutton, PACK_EXPAND_PADDING, 5);
-    TopBarUser.pack_start(logoutbuttonuser, PACK_EXPAND_PADDING, 5);
-    TopBarUser.pack_start(dashboardLabelUser, PACK_EXPAND_PADDING, 25);
+    TopBarUser.pack_start(logoUser, PACK_SHRINK, 25);
+    TopBarUser.pack_start(procurarbuttonCarros, PACK_SHRINK);
+    TopBarUser.pack_start(historicobutton, PACK_SHRINK);
+    TopBarUser.pack_start(defbutton, PACK_SHRINK);
+    TopBarUser.pack_start(Suportebutton, PACK_SHRINK);
+    TopBarUser.pack_start(logoutbuttonuser, PACK_SHRINK);
+    TopBarUser.pack_start(dashboardLabelUser, PACK_SHRINK, 25);
 
     //BOX PROCURAR CARROS
     ScrolledWindow procurarCarrosScrolledWindow;
-    Grid gridCarros;
-    Box FiltrosBar, CarrosBox;
-    Label FiltrosLabel("Filtros"), CarrosLabel("Resultados"), FiltroAnoLabel("Ano"), FiltroPrecoMinLabel("Preço Min"), FiltroPrecoMaxLabel("Preço Max"), FiltroOutrosLabel("Outros");
+    Box FiltrosBar, CarrosBox, gridCarros;
+    Label FiltrosLabel("Filtros"), FiltroAnoLabel("Ano"), FiltroPrecoMinLabel("Preço Min"), FiltroPrecoMaxLabel("Preço Max"), FiltroOutrosLabel("Outros");
     Entry FiltroMarca, FiltroModelo, FiltroCor;
     CheckButton FiltroUsado("Usado"), FiltroNovo("Novo"), FilroEletrico("Eletrico"), FiltroGasolina("Gasolina"), FiltroDiesel("Diesel"), FiltroHibrido("Hibrido");
     SpinButton FiltroAno, FiltroPrecoMin, FiltroPrecoMax;
+
+    gridCarros.set_homogeneous(true);
+    CarrosBox.set_hexpand(true);
+    CarrosBox.set_hexpand_set(true);
 
     //Nome das classes para o css
     FiltrosBar.set_name("Filtros");
@@ -486,10 +492,11 @@ int main(int argc, char **argv)
     }
 
     //Scroll para os carros
-    procurarCarrosScrolledWindow.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    procurarCarrosScrolledWindow.set_policy(POLICY_AUTOMATIC, POLICY_AUTOMATIC);
     procurarCarrosScrolledWindow.add(CarrosBox);
 
     //Adicionar os filtros
+    FiltrosBar.pack_start(FiltrosLabel, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroMarca, PACK_SHRINK, 5);
     FiltrosBar.pack_start(FiltroModelo, PACK_SHRINK), 5;
     FiltrosBar.pack_start(FiltroCor, PACK_SHRINK, 5);
@@ -508,14 +515,9 @@ int main(int argc, char **argv)
     FiltrosBar.pack_start(FiltroHibrido, PACK_SHRINK, 5);
 
     //Adicionar os filtros e os carros ao grid
-    gridCarros.add(FiltrosLabel);
-    gridCarros.attach_next_to(FiltrosBar, FiltrosLabel, PositionType::POS_BOTTOM, 1, 1);
-    gridCarros.attach_next_to(CarrosLabel, FiltrosLabel, PositionType::POS_RIGHT, 1, 1);
-    gridCarros.attach_next_to(procurarCarrosScrolledWindow, FiltrosBar, PositionType::POS_RIGHT, 1, 1);
-
-    //definir o espaçamento do grid
-    gridCarros.set_column_spacing(400);
-    gridCarros.set_row_spacing(10);
+    gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
+    gridCarros.pack_start(procurarCarrosScrolledWindow, PACK_SHRINK);
+    gridCarros.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
 
     //adicionar o grid ao box
     procurarCarrosBox.pack_start(gridCarros, PACK_SHRINK);
@@ -703,7 +705,7 @@ int main(int argc, char **argv)
 #endif
 
     // alinhamento
-    Alignment *align = manage(new Alignment(0.5, 0.5, 1, 1));
+    Alignment *align = manage(new Alignment(0.5, 0.5, 0, 0));
     align->add(stack);
     appWindow.add(*align);
     appWindow.show_all();
