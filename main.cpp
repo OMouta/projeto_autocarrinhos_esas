@@ -225,8 +225,8 @@ int main(int argc, char **argv)
 
     // criar o stack
     Stack stack;
-    stack.set_transition_type(StackTransitionType::STACK_TRANSITION_TYPE_OVER_DOWN_UP);
-    stack.set_transition_duration(500);
+    stack.set_transition_type(StackTransitionType::STACK_TRANSITION_TYPE_CROSSFADE);
+    stack.set_transition_duration(300);
 
     // os #if e #endif é pra organizar o codigo, o 1 ativa e o 0 desativa a parte do codigo! MANTER NO 1 PARA A FUNCIONAR CORRETAMENTE!
 
@@ -481,6 +481,7 @@ int main(int argc, char **argv)
 
 
     //Adicionar os carros
+    /*
     for (int i = 0; i < numerodecarrosatual; i++)
     {
         Box carro;
@@ -500,6 +501,7 @@ int main(int argc, char **argv)
         CarrosBox.pack_start(carro, PACK_SHRINK);
         CarrosBox.show_all_children();
     }
+    */
 
     //Scroll para os carros
     procurarCarrosScrolledWindow.set_policy(POLICY_AUTOMATIC, POLICY_AUTOMATIC);
