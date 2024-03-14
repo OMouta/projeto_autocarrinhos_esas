@@ -8,7 +8,6 @@
 
 using namespace Gtk;
 using namespace std;
-using namespace Glib;
 
 struct carros {
     string marca, modelo, cor, combustivel, estado, imagempath;
