@@ -28,7 +28,7 @@ bool pathExists(const filesystem::path p) //verificar se o caminho existe
 
 void loadcarrosstruct()
 {
-    // caminho para oscarros
+    // caminho para os carros
     filesystem::path dircarros = "dados/carros";
 
     // resetar a struct
@@ -597,18 +597,17 @@ int main(int argc, char **argv)
 
 #if 1 // Dashboard Utilizador
     Box DashboardUser, TopBarUser;
-    Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), Suportebutton("Suporte ao cliente"), logoutbuttonuser("Sair");
+    Button procurarbuttonCarros("Procurar Carros"), historicobutton("Histórico de transações"), defbutton("Definições de conta"), logoutbuttonuser("Sair");
     Stack contentStackUser;
     Label dashboardLabelUser("Bem-vindo, admin");
     Image logoUser("assets/logocar-xsmall.png");
 
-    Box procurarCarrosBox, historicobox, defbox, Suportebox;
+    Box procurarCarrosBox, historicobox, defbox;
 
     //adicionar as paginas de procura, historico, definições e suporte ao stack da dashboard
     contentStackUser.add(procurarCarrosBox, "procurarCarros");
     contentStackUser.add(historicobox, "historicobox");
     contentStackUser.add(defbox, "defbox");
-    contentStackUser.add(Suportebox, "Suportebox");
 
     //orientação dos boxes
     DashboardUser.set_orientation(Orientation::ORIENTATION_VERTICAL);
@@ -622,7 +621,6 @@ int main(int argc, char **argv)
     TopBarUser.pack_start(procurarbuttonCarros, PACK_SHRINK);
     TopBarUser.pack_start(historicobutton, PACK_SHRINK);
     TopBarUser.pack_start(defbutton, PACK_SHRINK);
-    TopBarUser.pack_start(Suportebutton, PACK_SHRINK);
     TopBarUser.pack_start(logoutbuttonuser, PACK_SHRINK);
     TopBarUser.pack_start(dashboardLabelUser, PACK_SHRINK, 25);
 
@@ -780,6 +778,114 @@ int main(int argc, char **argv)
     //adicionar o grid ao box
     procurarCarrosBox.pack_start(gridCarros);
 
+    //Box definições da conta
+    Entry nomeEntry, emailEntry, contactoEntry, moradaEntry, nifEntry, cartaoEntry, cvvEntry;
+    Button salvarDef("Salvar"), mudarPasseDef("Mudar palavra-passe");
+
+    nomeEntry.set_placeholder_text("Insira o seu nome");
+    emailEntry.set_placeholder_text("Insira o seu email");
+    contactoEntry.set_placeholder_text("Insira o numero de telemovel (+351)");
+    moradaEntry.set_placeholder_text("Insira a sua morada");
+    nifEntry.set_placeholder_text("Insira o seu NIF");
+    cartaoEntry.set_placeholder_text("Insira o seu cartao de credito");
+    cvvEntry.set_placeholder_text("Insira o seu CVV");
+
+    defbox.pack_start(emailEntry, PACK_SHRINK, 5);
+    defbox.pack_start(contactoEntry, PACK_SHRINK, 5);
+    defbox.pack_start(nomeEntry, PACK_SHRINK, 5);
+    defbox.pack_start(moradaEntry, PACK_SHRINK, 5);
+    defbox.pack_start(nifEntry, PACK_SHRINK, 5);
+    defbox.pack_start(cartaoEntry, PACK_SHRINK, 5);
+    defbox.pack_start(cvvEntry, PACK_SHRINK, 5);
+    defbox.pack_start(salvarDef, PACK_SHRINK, 5);
+    defbox.pack_start(mudarPasseDef, PACK_SHRINK, 5);
+
+    Box mudarPasse;
+
+    //Mudar palavra passe (NÃO TERMINADO)
+    Entry passeAntiga, passeNova, passeConfirm;
+    contentStackUser.add(mudarPasse, "mudarPasse");
+
+    passeAntiga.set_placeholder_text("Insira a palavra-passe atual");
+    passeNova.set_placeholder_text("Insira a palavra-passe nova");
+    passeConfirm.set_placeholder_text("Confirme a palavra passe");
+
+    mudarPasse.pack_start(passeAntiga, PACK_SHRINK, 5);
+    mudarPasse.pack_start(passeNova, PACK_SHRINK, 5);
+    mudarPasse.pack_start(passeConfirm, PACK_SHRINK, 5);
+
+
+
+    //Salvar as definições da conta quando dar click no botão
+    salvarDef.signal_clicked().connect([&emailEntry, &contactoEntry, &nomeEntry, &moradaEntry, &nifEntry, &cartaoEntry, &cvvEntry]){
+        ifstream info("dados/utilizadores/" + utilizadoratual + "info.txt");
+        string linha;
+
+            // percorrer o ficheiro de informação e adicionar a informação à struct
+            while(getline(info, linha))
+            {
+                if (linha.find("Email: ") != string::npos)
+                {
+                    info << "Email: " << emailEntry.get_text();
+                }
+                if (linha.find("Contacto: ") != string::npos)
+                {
+                    info << "Contacto: " << contactoEntry.get_text();
+                }
+                if (linha.find("Nome: ") != string::npos)
+                {
+                    info << "Nome: " << nomeEntry.get_text();
+                }
+                if (linha.find("Morada: ") != string::npos)
+                {
+                    info << "Morada: " << moradaEntry.get_text();
+                }
+                if (linha.find("NIF: ") != string::npos)
+                {
+                    info << "NIF: " << nifEntry.get_text();
+                }
+                if (linha.find("Numero do cartão de crédito: ") != string::npos)
+                {
+                    info << "Numero do cartão de crédito: " << cartaoEntry.get_text();
+                }
+                if (linha.find("CVV: ") != string::npos)
+                {
+                    info << "CVV: " << cvvEntry.get_text();
+                }
+    }
+    }
+
+    mudarPasseDef.signal_clicked().connect([&passeAntiga, &passeNova,])
+    {
+        ifstream info(temppath + "/info.txt")
+        string linha, password;
+        bool tem = false;
+
+        while (getline(info, linha))
+        {
+        //encontrar a passe do utilizador
+        size_t start = linha.find("Palavra-passe: ");
+
+        // Encontrar a palavra passe no ficheiro
+        if (start != std::string::npos)
+        {
+            // Obter a senha depois da string "palavra passe: "
+            password = linha.substr(start + 15);
+
+            // remover o carater da linha nova ao final da senha
+            password.erase(password.find("\n"));
+
+            // Verificar se a palavra passe inserida é igual à palavra passe salvada
+            if (passeAntiga == password)
+            {
+                tem = true;
+            }
+        }
+        }
+
+        // fechar o ficheiro
+        info.close()
+
     //Adicionar os filtros e os carros ao grid
     gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
     gridCarros.pack_start(procurarCarrosScrolledWindow);
@@ -801,12 +907,6 @@ int main(int argc, char **argv)
     defbutton.signal_clicked().connect([&contentStackUser]
     {
         contentStackUser.set_visible_child("defbox");
-    });
-
-    //mudar para a pagina de suporte
-    Suportebutton.signal_clicked().connect([&contentStackUser]
-    {
-        contentStackUser.set_visible_child("Suportebox");
     });
 
     //espaçamento
