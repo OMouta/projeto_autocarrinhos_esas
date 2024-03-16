@@ -1,0 +1,9 @@
+Nome de utilizador: Sebastian
+Palavra-passe: 123
+Email: 
+Contacto: 
+Nome: 
+Morada: 
+NIF: 
+Numero do cartão de crédito: 
+CVV: 
