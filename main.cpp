@@ -182,26 +182,84 @@ void mostrarcarros(Box& CarrosBox, string FiltroMarca, string FiltroModelo, stri
         }
 
         // criar a box do carro
-        Box* carro = new Box(Orientation::ORIENTATION_VERTICAL);
+        Box* carro = new Box(Orientation::ORIENTATION_HORIZONTAL);
         carro->set_spacing(4);
+
+        Box* informacao = new Box(Orientation::ORIENTATION_VERTICAL);
 
         // criar as labels do carro
         Label* ano_marca_modelo_cor = new Label(to_string(c[i].ano) + " " + c[i].marca + " " + c[i].modelo + " " + c[i].cor);
         Label* combustivel_estado = new Label("Combustivel: " + c[i].combustivel + " | Estado: " + c[i].estado);
         Label* preco = new Label(to_string(c[i].preco) + "€");
 
-        Image* imagem = new Image(c[i].imagempath);
+        Glib::RefPtr<Gdk::Pixbuf> pixbuf2;
+        Glib::RefPtr<Gdk::Pixbuf> novaimagem2;
+
+        try {
+            pixbuf2 = Gdk::Pixbuf::create_from_file(c[i].imagempath);
+            novaimagem2 = pixbuf2->scale_simple(200, 150, Gdk::INTERP_BILINEAR);
+        } catch (const Glib::FileError& ex) {
+            cerr << "Erro: " << ex.what() << endl;
+        } catch (const Gdk::PixbufError& ex) {
+            cerr << "Erro: " << ex.what() << endl;
+        }
+
+        if (!novaimagem2) {
+            cerr << "Sem imagem: " << c[i].imagempath << endl;
+            continue;
+        }
+
+        Image* imagem = manage(new Image());
+        imagem->set(novaimagem2);
+
+        Button* editarbutton = new Button("Editar");
+        Button* removerbutton = new Button("Remover");
+        Button* comprarbutton = new Button("Comprar");
+
+        Label* erro = new Label("");
 
         // adicionar as labels à box do carro
-        carro->pack_start(*ano_marca_modelo_cor, PACK_SHRINK);
-        carro->pack_start(*combustivel_estado, PACK_SHRINK);
-        carro->pack_start(*preco, PACK_SHRINK);
+        informacao->pack_start(*ano_marca_modelo_cor, PACK_SHRINK);
+        informacao->pack_start(*combustivel_estado, PACK_SHRINK);
+        informacao->pack_start(*preco, PACK_SHRINK);
+        informacao->pack_start(*erro, PACK_SHRINK);
+
+        if(eadmin == true)
+        {
+            informacao->pack_start(*editarbutton, PACK_SHRINK);
+            informacao->pack_start(*removerbutton, PACK_SHRINK);
+        }
+        else
+        {
+            informacao->pack_start(*comprarbutton, PACK_SHRINK);
+        }
+
+        carro->pack_start(*imagem, PACK_SHRINK);
+        carro->pack_start(*informacao, PACK_SHRINK);
 
         // adicionar a box do carro à box dos carros
         ano_marca_modelo_cor->set_name("Carros");
         combustivel_estado->set_name("Carros");
         preco->set_name("Carros");
         carro->set_name("Carros");
+        informacao->set_name("Carros");
+        erro->set_name("erro");
+
+        // adicionar a box do carro à box dos carros
+        informacao->set_halign(Align::ALIGN_START);
+        informacao->set_valign(Align::ALIGN_CENTER);
+        informacao->set_hexpand(false);
+        informacao->set_vexpand(false);
+        informacao->set_hexpand_set(false);
+        informacao->set_vexpand_set(false);
+        informacao->set_margin(10);
+        carro->set_size_request(400, 150);
+        carro->set_halign(Align::ALIGN_START);
+        carro->set_valign(Align::ALIGN_CENTER);
+        carro->set_hexpand(false);
+        carro->set_vexpand(false);
+        carro->set_hexpand_set(false);
+        carro->set_vexpand_set(false);
 
         // adicionar a box do carro à box dos carros
         CarrosBox.pack_start(*carro);
@@ -612,6 +670,7 @@ int main(int argc, char **argv)
     //orientação dos boxes
     DashboardUser.set_orientation(Orientation::ORIENTATION_VERTICAL);
     TopBarUser.set_orientation(Orientation::ORIENTATION_HORIZONTAL);
+    defbox.set_orientation(Orientation::ORIENTATION_VERTICAL);
 
     TopBarUser.set_center_widget(dashboardLabelUser);
     TopBarUser.set_spacing(10);
@@ -689,8 +748,10 @@ int main(int argc, char **argv)
     CarrosBox.set_hexpand_set(true);
 
     //Scroll para os carros
-    procurarCarrosScrolledWindow.set_policy(POLICY_AUTOMATIC, POLICY_AUTOMATIC);
+    procurarCarrosScrolledWindow.set_policy(POLICY_NEVER, POLICY_AUTOMATIC);
     procurarCarrosScrolledWindow.add(CarrosBox);
+    procurarCarrosScrolledWindow.set_hexpand(true);
+    procurarCarrosScrolledWindow.set_hexpand_set(true);
 
     //Adicionar os filtros
     FiltrosBar.pack_start(FiltrosLabel, PACK_SHRINK, 5);
@@ -781,29 +842,32 @@ int main(int argc, char **argv)
     //Box definições da conta
     Entry nomeEntry, emailEntry, contactoEntry, moradaEntry, nifEntry, cartaoEntry, cvvEntry;
     Button salvarDef("Salvar"), mudarPasseDef("Mudar palavra-passe");
+    Box mudarPasse;
+    Label defLabelerro("");
 
-    nomeEntry.set_placeholder_text("Insira o seu nome");
-    emailEntry.set_placeholder_text("Insira o seu email");
-    contactoEntry.set_placeholder_text("Insira o numero de telemovel (+351)");
-    moradaEntry.set_placeholder_text("Insira a sua morada");
-    nifEntry.set_placeholder_text("Insira o seu NIF");
-    cartaoEntry.set_placeholder_text("Insira o seu cartao de credito");
-    cvvEntry.set_placeholder_text("Insira o seu CVV");
+    nomeEntry.set_placeholder_text("Nome");
+    emailEntry.set_placeholder_text("Email");
+    contactoEntry.set_placeholder_text("Numero de telemovel (+351)");
+    moradaEntry.set_placeholder_text("Morada");
+    nifEntry.set_placeholder_text("NIF");
+    cartaoEntry.set_placeholder_text("Cartao de credito");
+    cvvEntry.set_placeholder_text("CVV");
 
+    defbox.pack_start(nomeEntry, PACK_SHRINK, 5);
     defbox.pack_start(emailEntry, PACK_SHRINK, 5);
     defbox.pack_start(contactoEntry, PACK_SHRINK, 5);
-    defbox.pack_start(nomeEntry, PACK_SHRINK, 5);
     defbox.pack_start(moradaEntry, PACK_SHRINK, 5);
     defbox.pack_start(nifEntry, PACK_SHRINK, 5);
     defbox.pack_start(cartaoEntry, PACK_SHRINK, 5);
     defbox.pack_start(cvvEntry, PACK_SHRINK, 5);
+    defbox.pack_start(defLabelerro, PACK_SHRINK, 5);
     defbox.pack_start(salvarDef, PACK_SHRINK, 5);
     defbox.pack_start(mudarPasseDef, PACK_SHRINK, 5);
 
-    Box mudarPasse;
-
-    //Mudar palavra passe (NÃO TERMINADO)
+    //Mudar palavra passe
     Entry passeAntiga, passeNova, passeConfirm;
+    Button mudarPassebtn("Mudar palavra-passe");
+    Label mudarPasseErro("");
     contentStackUser.add(mudarPasse, "mudarPasse");
 
     passeAntiga.set_placeholder_text("Insira a palavra-passe atual");
@@ -813,78 +877,92 @@ int main(int argc, char **argv)
     mudarPasse.pack_start(passeAntiga, PACK_SHRINK, 5);
     mudarPasse.pack_start(passeNova, PACK_SHRINK, 5);
     mudarPasse.pack_start(passeConfirm, PACK_SHRINK, 5);
-
-
+    mudarPasse.pack_start(mudarPasseErro, PACK_SHRINK, 5);
+    mudarPasse.pack_start(mudarPasse, PACK_SHRINK, 5);
 
     //Salvar as definições da conta quando dar click no botão
-    salvarDef.signal_clicked().connect([&emailEntry, &contactoEntry, &nomeEntry, &moradaEntry, &nifEntry, &cartaoEntry, &cvvEntry]){
-        ifstream info("dados/utilizadores/" + utilizadoratual + "info.txt");
+    salvarDef.signal_clicked().connect([&emailEntry, &contactoEntry, &nomeEntry, &moradaEntry, &nifEntry, &cartaoEntry, &cvvEntry]
+    {
+        ifstream infoIn("dados/utilizadores/" + utilizadoratual + "/info.txt");
+        stringstream infoOut;
         string linha;
 
-            // percorrer o ficheiro de informação e adicionar a informação à struct
-            while(getline(info, linha))
+        // Read the file line by line
+        while(getline(infoIn, linha))
+        {
+            if (linha.find("Email: ") != string::npos)
             {
-                if (linha.find("Email: ") != string::npos)
-                {
-                    info << "Email: " << emailEntry.get_text();
-                }
-                if (linha.find("Contacto: ") != string::npos)
-                {
-                    info << "Contacto: " << contactoEntry.get_text();
-                }
-                if (linha.find("Nome: ") != string::npos)
-                {
-                    info << "Nome: " << nomeEntry.get_text();
-                }
-                if (linha.find("Morada: ") != string::npos)
-                {
-                    info << "Morada: " << moradaEntry.get_text();
-                }
-                if (linha.find("NIF: ") != string::npos)
-                {
-                    info << "NIF: " << nifEntry.get_text();
-                }
-                if (linha.find("Numero do cartão de crédito: ") != string::npos)
-                {
-                    info << "Numero do cartão de crédito: " << cartaoEntry.get_text();
-                }
-                if (linha.find("CVV: ") != string::npos)
-                {
-                    info << "CVV: " << cvvEntry.get_text();
-                }
-    }
-    }
+                linha = "Email: " + emailEntry.get_text();
+            }
+            else if (linha.find("Contacto: ") != string::npos)
+            {
+                linha = "Contacto: " + contactoEntry.get_text();
+            }
+            else if (linha.find("Nome: ") != string::npos)
+            {
+                linha = "Nome: " + nomeEntry.get_text();
+            }
+            else if (linha.find("Morada: ") != string::npos)
+            {
+                linha = "Morada: " + moradaEntry.get_text();
+            }
+            else if (linha.find("NIF: ") != string::npos)
+            {
+                linha = "NIF: " + nifEntry.get_text();
+            }
+            else if (linha.find("Numero do cartão de crédito: ") != string::npos)
+            {
+                linha = "Numero do cartão de crédito: " + cartaoEntry.get_text();
+            }
+            else if (linha.find("CVV: ") != string::npos)
+            {
+                linha = "CVV: " + cvvEntry.get_text();
+            }
 
-    mudarPasseDef.signal_clicked().connect([&passeAntiga, &passeNova,])
+            // Write the (possibly modified) line to the stringstream
+            infoOut << linha << "\n";
+        }
+
+        // Close the input file
+        infoIn.close();
+
+        // Open the output file and write the modified content to it
+        ofstream infoOutFile("dados/utilizadores/" + utilizadoratual + "/info.txt");
+        infoOutFile << infoOut.str();
+        infoOutFile.close();
+    });
+
+    mudarPassebtn.signal_clicked().connect([&passeAntiga, &passeNova]
     {
-        ifstream info(temppath + "/info.txt")
+        ifstream info("dados/utilizadores" + utilizadoratual + "/info.txt");
         string linha, password;
         bool tem = false;
 
         while (getline(info, linha))
         {
-        //encontrar a passe do utilizador
-        size_t start = linha.find("Palavra-passe: ");
+            //encontrar a passe do utilizador
+            size_t start = linha.find("Palavra-passe: ");
 
-        // Encontrar a palavra passe no ficheiro
-        if (start != std::string::npos)
-        {
-            // Obter a senha depois da string "palavra passe: "
-            password = linha.substr(start + 15);
-
-            // remover o carater da linha nova ao final da senha
-            password.erase(password.find("\n"));
-
-            // Verificar se a palavra passe inserida é igual à palavra passe salvada
-            if (passeAntiga == password)
+            // Encontrar a palavra passe no ficheiro
+            if (start != std::string::npos)
             {
-                tem = true;
+                // Obter a senha depois da string "palavra passe: "
+                password = linha.substr(start + 15);
+
+                // remover o carater da linha nova ao final da senha
+                password.erase(password.find("\n"));
+
+                // Verificar se a palavra passe inserida é igual à palavra passe salvada
+                if (passeAntiga.get_text() == password)
+                {
+                    tem = true;
+                }
             }
-        }
         }
 
         // fechar o ficheiro
-        info.close()
+        info.close();
+    });
 
     //Adicionar os filtros e os carros ao grid
     gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
@@ -907,6 +985,16 @@ int main(int argc, char **argv)
     defbutton.signal_clicked().connect([&contentStackUser]
     {
         contentStackUser.set_visible_child("defbox");
+    });
+
+    defbutton.signal_clicked().connect([&contentStackUser]
+    {
+        contentStackUser.set_visible_child("defbox");
+    });
+
+    mudarPasseDef.signal_clicked().connect([&contentStackUser]
+    {
+        contentStackUser.set_visible_child("mudarPasse");
     });
 
     //espaçamento
