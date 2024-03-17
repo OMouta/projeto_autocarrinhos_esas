@@ -44,3 +44,14 @@ entry {
     background-color: #1d1f1f;
     color: #ffffff;
 }
+
+#mudarpassbutton {
+    color: #d8dee9;
+    background-color: transparent;
+    border: none;
+}
+
+#mudarpassbutton > label {
+    background-color: transparent;
+    border: none;
+}
