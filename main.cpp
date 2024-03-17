@@ -234,6 +234,18 @@ void mostrarcarros(Box& CarrosBox, string FiltroMarca, string FiltroModelo, stri
             informacao->pack_start(*comprarbutton, PACK_SHRINK);
         }
 
+        editarbutton->signal_clicked().connect([i]{
+            mostrardebug("Editar carro " + i);
+        });
+
+        removerbutton->signal_clicked().connect([i]{
+            mostrardebug("Remover carro " + i);
+        });
+
+        comprarbutton->signal_clicked().connect([i]{
+            mostrardebug("Comprar carro " + i);
+        });
+
         //imagem do carro
         carro->pack_start(*imagem, PACK_SHRINK);
         carro->pack_start(*informacao, PACK_SHRINK);
