@@ -105,7 +105,7 @@ void loadcarrosstruct()
     }    
 }
 
-void mostrarcarros(Box& CarrosBox, string FiltroMarca, string FiltroModelo, string FiltroCor, string FiltroAno, string FiltroPrecoMin, string FiltroPrecoMax, bool FiltroUsado, bool FiltroNovo, bool FilroEletrico, bool FiltroGasolina, bool FiltroDiesel, bool FiltroHibrido)
+void mostrarcarros(Box& CarrosBox, string FiltroMarca, string FiltroModelo, string FiltroCor, string FiltroAno, string FiltroPrecoMin, string FiltroPrecoMax, bool FiltroUsado, bool FiltroNovo, bool FilroEletrico, bool FiltroGasolina, bool FiltroDiesel, bool FiltroHibrido, bool eadmin)
 {
     // limpar a box
     vector<Widget*> carros = CarrosBox.get_children();
@@ -186,30 +186,20 @@ void mostrarcarros(Box& CarrosBox, string FiltroMarca, string FiltroModelo, stri
         carro->set_spacing(4);
 
         // criar as labels do carro
-        Label* marca = new Label("Marca: " + c[i].marca);
-        Label* modelo = new Label("Modelo: " + c[i].modelo);
-        Label* cor = new Label("Cor: " + c[i].cor);
-        Label* combustivel = new Label("Combustivel: " + c[i].combustivel);
-        Label* estado = new Label("Estado: " + c[i].estado);
-        Label* ano = new Label("Ano: " + to_string(c[i].ano));
-        Label* preco = new Label("Preço: " + to_string(c[i].preco));
+        Label* ano_marca_modelo_cor = new Label(to_string(c[i].ano) + " " + c[i].marca + " " + c[i].modelo + " " + c[i].cor);
+        Label* combustivel_estado = new Label("Combustivel: " + c[i].combustivel + " | Estado: " + c[i].estado);
+        Label* preco = new Label(to_string(c[i].preco) + "€");
+
+        Image* imagem = new Image(c[i].imagempath);
 
         // adicionar as labels à box do carro
-        carro->pack_start(*marca, PACK_SHRINK);
-        carro->pack_start(*modelo, PACK_SHRINK);
-        carro->pack_start(*cor, PACK_SHRINK);
-        carro->pack_start(*combustivel, PACK_SHRINK);
-        carro->pack_start(*estado, PACK_SHRINK);
-        carro->pack_start(*ano, PACK_SHRINK);
+        carro->pack_start(*ano_marca_modelo_cor, PACK_SHRINK);
+        carro->pack_start(*combustivel_estado, PACK_SHRINK);
         carro->pack_start(*preco, PACK_SHRINK);
 
         // adicionar a box do carro à box dos carros
-        marca->set_name("Carros");
-        modelo->set_name("Carros");
-        cor->set_name("Carros");
-        combustivel->set_name("Carros");
-        estado->set_name("Carros");
-        ano->set_name("Carros");
+        ano_marca_modelo_cor->set_name("Carros");
+        combustivel_estado->set_name("Carros");
         preco->set_name("Carros");
         carro->set_name("Carros");
 
@@ -722,67 +712,67 @@ int main(int argc, char **argv)
     FiltrosBar.pack_start(FiltroHibrido, PACK_SHRINK, 5);
 
     //Adicionar os carros
-    mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+    mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
 
     //Mudar os carros quando os filtros mudam
     FiltroMarca.signal_changed().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroModelo.signal_changed().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroCor.signal_changed().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroAno.signal_value_changed().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroPrecoMin.signal_value_changed().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroPrecoMax.signal_value_changed().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroUsado.signal_toggled().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroNovo.signal_toggled().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FilroEletrico.signal_toggled().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroGasolina.signal_toggled().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroDiesel.signal_toggled().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     FiltroHibrido.signal_toggled().connect([&CarrosBox, &FiltroMarca, &FiltroModelo, &FiltroCor, &FiltroAno, &FiltroPrecoMin, &FiltroPrecoMax, &FiltroUsado, &FiltroNovo, &FilroEletrico, &FiltroGasolina, &FiltroDiesel, &FiltroHibrido]
     {
-        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active());
+        mostrarcarros(CarrosBox, FiltroMarca.get_text(), FiltroModelo.get_text(), FiltroCor.get_text(), to_string(FiltroAno.get_value()), to_string(FiltroPrecoMin.get_value()), to_string(FiltroPrecoMax.get_value()), FiltroUsado.get_active(), FiltroNovo.get_active(), FilroEletrico.get_active(), FiltroGasolina.get_active(), FiltroDiesel.get_active(), FiltroHibrido.get_active(), false);
     });
 
     //adicionar o grid ao box
@@ -827,46 +817,60 @@ int main(int argc, char **argv)
 
 
     //Salvar as definições da conta quando dar click no botão
-    salvarDef.signal_clicked().connect([&emailEntry, &contactoEntry, &nomeEntry, &moradaEntry, &nifEntry, &cartaoEntry, &cvvEntry]){
-        ifstream info("dados/utilizadores/" + utilizadoratual + "info.txt");
-        string linha;
+    salvarDef.signal_clicked().connect([&]()
+{
+    // Abrir o ficheiro "info.txt" do utilizador actual em modo leitura
+    ifstream info("dados/utilizadores/" + utilizadoratual + "/info.txt");
 
-            // percorrer o ficheiro de informação e adicionar a informação à struct
-            while(getline(info, linha))
-            {
-                if (linha.find("Email: ") != string::npos)
-                {
-                    info << "Email: " << emailEntry.get_text();
-                }
-                if (linha.find("Contacto: ") != string::npos)
-                {
-                    info << "Contacto: " << contactoEntry.get_text();
-                }
-                if (linha.find("Nome: ") != string::npos)
-                {
-                    info << "Nome: " << nomeEntry.get_text();
-                }
-                if (linha.find("Morada: ") != string::npos)
-                {
-                    info << "Morada: " << moradaEntry.get_text();
-                }
-                if (linha.find("NIF: ") != string::npos)
-                {
-                    info << "NIF: " << nifEntry.get_text();
-                }
-                if (linha.find("Numero do cartão de crédito: ") != string::npos)
-                {
-                    info << "Numero do cartão de crédito: " << cartaoEntry.get_text();
-                }
-                if (linha.find("CVV: ") != string::npos)
-                {
-                    info << "CVV: " << cvvEntry.get_text();
-                }
-    }
-    }
+    // Criar um mapa sem ordem para armazenar as chaves e valores das linhas do ficheiro
+    unordered_map<string, string> data;
+    string linha, password;
 
-    mudarPasseDef.signal_clicked().connect([&passeAntiga, &passeNova,])
+    // Declarar um vector de strings com o orden desejado das linhas no ficheiro
+    vector<string> order = {"Nome de utilizador", "Palavra-passe", "Email", "Contacto", "Nome", "Morada", "NIF", "Numero do cartão de crédito", "CVV"};
+
+    // Ler o conteúdo actual do ficheiro "info.txt" linha por linha
+    while (getline(info, linha))
     {
+        if (linha.substr(0, 15) == "Palavra-passe: ")
+        {
+            // Armazenar o valor da password na variável password
+            password = linha.substr(15);
+        }
+        else if (linha.substr(0, 15) != "Email: ")
+        {
+            // Encontrar a posição do caracter ":" na linha actual
+            size_t pos = linha.find(": ");
+
+            // Armazenar a chave e o valor da linha actual no mapa "data"
+            data[linha.substr(0, pos)] = linha.substr(pos + 2);
+        }
+    }
+
+    //fechar o ficheiro
+    info.close();
+
+    // Actualizar o mapa "data" com a nova informação
+    data["Email"] = emailEntry.get_text();
+    data["Contacto"] = contactoEntry.get_text();
+    data["Nome"] = nomeEntry.get_text();
+    data["Morada"] = moradaEntry.get_text();
+    data["NIF"] = nifEntry.get_text();
+    data["Numero do cartão de crédito"] = cartaoEntry.get_text();
+    data["CVV"] = cvvEntry.get_text();
+    data["Palavra-passe"] = password;
+
+    // Sobrescrever o ficheiro "info.txt" com o mapa "data" actualizado
+    ofstream output("dados/utilizadores/" + utilizadoratual + "/info.txt");
+    for (const auto &entry : data)
+    {
+        output << entry.first << ": " << entry.second << "\n";
+    }
+    output.close();
+});
+
+/*
+    mudarPasseDef.signal_clicked().connect([&passeAntiga, &passeNova]{
         ifstream info(temppath + "/info.txt")
         string linha, password;
         bool tem = false;
@@ -895,6 +899,8 @@ int main(int argc, char **argv)
 
         // fechar o ficheiro
         info.close()
+    });
+*/
 
     //Adicionar os filtros e os carros ao grid
     gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
