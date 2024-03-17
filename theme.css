@@ -28,6 +28,7 @@ entry {
 #erro {
     font-style: italic;
     color: #c45555;
+    background-color: transparent;
 }
 
 #Filtros {
