@@ -1237,6 +1237,7 @@ int main(int argc, char **argv)
 
 #if 1 // Auto completar
 
+    //classe para o auto completar
     class ModelColumns : public TreeModel::ColumnRecord
     {
     public:
@@ -1246,6 +1247,7 @@ int main(int argc, char **argv)
         TreeModelColumn<Glib::ustring> m_col_name;
     };
 
+    //auto completar para os filtros
     FiltroMarca.set_editable(true);
     FiltroModelo.set_editable(true);
     FiltroCor.set_editable(true);
@@ -1266,6 +1268,7 @@ int main(int argc, char **argv)
 
     ModelColumns m_Columns;
 
+    //criar o auto completar
     Glib::RefPtr<Gtk::EntryCompletion> compmarca = Gtk::EntryCompletion::create();
     Glib::RefPtr<Gtk::EntryCompletion> compmarca2 = Gtk::EntryCompletion::create();
     Glib::RefPtr<Gtk::ListStore> modelmarca = Gtk::ListStore::create(m_Columns);
@@ -1300,6 +1303,7 @@ int main(int argc, char **argv)
     compcombustivel->set_model(modelcombustivel);
     criarCarroCombustivel.set_completion(compcombustivel);
 
+    //configurações do auto completar
     compmarca->set_inline_completion(true);
     compmarca2->set_inline_completion(true);
     compmodelo->set_inline_completion(true);
@@ -1327,6 +1331,7 @@ int main(int argc, char **argv)
     compestado->set_minimum_key_length(1);
     compcombustivel->set_minimum_key_length(1);
 
+    //adicionar os valores ao auto completar
     set<string> marcas, modelos;
     vector<string> cores = {"Preto", "Branco", "Cinzento", "Azul", "Vermelho", "Verde", "Amarelo", "Roxo", "Laranja", "Castanho", "Prata", "Dourado", "Bege", "Rosa", "Outra"};
     vector<string> estados = {"Usado", "Novo"};
@@ -1362,6 +1367,7 @@ int main(int argc, char **argv)
         row[m_Columns.m_col_name] = combustivel;
     }
 
+    //colunas do auto completar
     compmarca->set_text_column(m_Columns.m_col_name);
     compmarca2->set_text_column(m_Columns.m_col_name);
     compmodelo->set_text_column(m_Columns.m_col_name);
