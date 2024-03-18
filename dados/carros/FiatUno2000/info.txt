@@ -1,8 +1,0 @@
-Marca: Fiat
-Modelo: Uno
-Cor: Vermelho
-Combustivel: Gasolina
-Estado: Usado
-Ano: 2000
-Preco: 10000
-Imagem: carro.png

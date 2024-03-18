@@ -1,8 +1,0 @@
-Marca: Lambo
-Modelo: 1
-Cor: Vermelho
-Combustivel: Gasolina
-Estado: Novo
-Ano: 2018
-Preco: 200000
-Imagem: dados/carros/Lambo12018/Lamborghini-Veneno_roadster_925x520_acf_cropped-925x520.jpg

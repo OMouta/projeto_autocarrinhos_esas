@@ -1,8 +1,0 @@
-Marca: Fiat
-Modelo: Palio
-Cor: Branco
-Combustivel: Gasolina
-Estado: Novo
-Ano: 2020
-Preco: 15000
-Imagem: dados/carros/FiatPalio2020/Wallpaper.jpg

@@ -238,8 +238,17 @@ void mostrarcarros(Box& CarrosBox, string FiltroMarca, string FiltroModelo, stri
             mostrardebug("Editar carro " + i);
         });
 
-        removerbutton->signal_clicked().connect([i]{
-            mostrardebug("Remover carro " + i);
+        removerbutton->signal_clicked().connect([i, &CarrosBox]{
+           filesystem::path deletarPath = "dados/carros/" + c[i].marca + c[i].modelo + to_string(c[i].ano);
+
+           try {
+             filesystem::remove_all(deletarPath);
+           } catch(filesystem::filesystem_error& e) {
+            mostrardebug(e.what());
+           }
+
+            loadcarrosstruct();
+            mostrarcarros(CarrosBox, "", "", "", 0, 0, 0, false, false, false, false, false, false, true);
         });
 
         comprarbutton->signal_clicked().connect([i]{
@@ -257,8 +266,6 @@ void mostrarcarros(Box& CarrosBox, string FiltroMarca, string FiltroModelo, stri
         carro->set_name("Carros");
         informacao->set_name("Carros");
         erro->set_name("erro");
-
-        //
         informacao->set_halign(Align::ALIGN_START);
         informacao->set_valign(Align::ALIGN_CENTER);
         informacao->set_hexpand(false);
@@ -452,7 +459,7 @@ int main(int argc, char **argv)
     stack.add(LoginScroll, "login");
 #endif
 
-#if 1 // registrar
+#if 1 // Registrar
     Box registrarBox;
     ScrolledWindow registrarScroll;
     registrarBox.set_spacing(15);
@@ -565,7 +572,7 @@ int main(int argc, char **argv)
 
         //carregar a imagem e mostrar no preview
         auto pixbuf = Gdk::Pixbuf::create_from_file(imagempath);
-        auto novaimagem = pixbuf->scale_simple(100, 100, Gdk::INTERP_BILINEAR);
+        auto novaimagem = pixbuf->scale_simple(100, 50, Gdk::INTERP_BILINEAR);
         criarCarroImagemPreview.set(novaimagem);
     });
 
@@ -620,6 +627,8 @@ int main(int argc, char **argv)
             criarCarroImagemPreview.set("");
             imagempath = "";
             criarCarroImagem.unselect_all();
+
+            loadcarrosstruct();
         }
     });
 
@@ -1223,6 +1232,27 @@ int main(int argc, char **argv)
 
         cout << "Sair da conta" << endl;
         });
+
+#endif
+
+#if 1 // Auto completar
+
+    class ModelColumns : public TreeModel::ColumnRecord
+    {
+    public:
+        ModelColumns()
+        { add(m_col_name); }
+
+        TreeModelColumn<Glib::ustring> m_col_name;
+    };
+
+    ModelColumns m_Columns;
+
+    Glib::RefPtr<Gtk::EntryCompletion> compmarca = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::ListStore> modelmarca = Gtk::ListStore::create(m_Columns);
+    compmarca->set_model(modelmarca);
+    FiltroMarca.set_completion(compmarca);
+    criarCarroMarca.set_completion(compmarca);
 
 #endif
 

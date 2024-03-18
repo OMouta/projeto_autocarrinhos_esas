@@ -1,9 +1,9 @@
 Nome de utilizador: Mouta
 Palavra-passe: 123
-Email: 
-Contacto: 
-Nome: 
-Morada: 
-NIF: 
-Numero do cartão de crédito: 
-CVV: 
+Email: 1
+Contacto: 1
+Nome: 1
+Morada: 1
+NIF: 1
+Numero do cartão de crédito: 1
+CVV: 1

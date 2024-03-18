@@ -1,0 +1,8 @@
+Marca: Tesla
+Modelo: Model Y
+Cor: Azul
+Combustivel: Eletrico
+Estado: Novo
+Ano: 2023
+Preco: 150000
+Imagem: dados/carros/TeslaModel Y2023/Tesla_Model_Y-01@2x.jpg

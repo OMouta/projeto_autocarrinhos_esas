@@ -1,8 +1,0 @@
-Marca: BMW
-Modelo: M3
-Cor: Vermelho
-Combustivel: Disel
-Estado: Usado
-Ano: 2018
-Preco: 110000
-Imagem: dados/carros/BMWM32018/BMW_M3_Competition_(G80)_IMG_4041.jpg
