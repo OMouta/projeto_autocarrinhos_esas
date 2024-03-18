@@ -1246,13 +1246,130 @@ int main(int argc, char **argv)
         TreeModelColumn<Glib::ustring> m_col_name;
     };
 
+    FiltroMarca.set_editable(true);
+    FiltroModelo.set_editable(true);
+    FiltroCor.set_editable(true);
+    criarCarroMarca.set_editable(true);
+    criarCarroModelo.set_editable(true);
+    criarCarroCor.set_editable(true);
+    criarCarroEstado.set_editable(true);
+    criarCarroCombustivel.set_editable(true);
+
+    FiltroMarca.set_sensitive(true);
+    FiltroModelo.set_sensitive(true);
+    FiltroCor.set_sensitive(true);
+    criarCarroMarca.set_sensitive(true);
+    criarCarroModelo.set_sensitive(true);
+    criarCarroCor.set_sensitive(true);
+    criarCarroEstado.set_sensitive(true);
+    criarCarroCombustivel.set_sensitive(true);
+
     ModelColumns m_Columns;
 
     Glib::RefPtr<Gtk::EntryCompletion> compmarca = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::EntryCompletion> compmarca2 = Gtk::EntryCompletion::create();
     Glib::RefPtr<Gtk::ListStore> modelmarca = Gtk::ListStore::create(m_Columns);
     compmarca->set_model(modelmarca);
+    compmarca2->set_model(modelmarca);
     FiltroMarca.set_completion(compmarca);
-    criarCarroMarca.set_completion(compmarca);
+    criarCarroMarca.set_completion(compmarca2);
+
+    Glib::RefPtr<Gtk::EntryCompletion> compmodelo = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::EntryCompletion> compmodelo2 = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::ListStore> modelmodelo = Gtk::ListStore::create(m_Columns);
+    compmodelo->set_model(modelmodelo);
+    compmodelo2->set_model(modelmodelo);
+    FiltroModelo.set_completion(compmodelo);
+    criarCarroModelo.set_completion(compmodelo2);
+
+    Glib::RefPtr<Gtk::EntryCompletion> compcor = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::EntryCompletion> compcor2 = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::ListStore> modelcor = Gtk::ListStore::create(m_Columns);
+    compcor->set_model(modelcor);
+    compcor2->set_model(modelcor);
+    FiltroCor.set_completion(compcor);
+    criarCarroCor.set_completion(compcor2);
+
+    Glib::RefPtr<Gtk::EntryCompletion> compestado = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::ListStore> modelestado = Gtk::ListStore::create(m_Columns);
+    compestado->set_model(modelestado);
+    criarCarroEstado.set_completion(compestado);
+
+    Glib::RefPtr<Gtk::EntryCompletion> compcombustivel = Gtk::EntryCompletion::create();
+    Glib::RefPtr<Gtk::ListStore> modelcombustivel = Gtk::ListStore::create(m_Columns);
+    compcombustivel->set_model(modelcombustivel);
+    criarCarroCombustivel.set_completion(compcombustivel);
+
+    compmarca->set_inline_completion(true);
+    compmarca2->set_inline_completion(true);
+    compmodelo->set_inline_completion(true);
+    compmodelo2->set_inline_completion(true);
+    compcor->set_inline_completion(true);
+    compcor2->set_inline_completion(true);
+    compestado->set_inline_completion(true);
+    compcombustivel->set_inline_completion(true);
+
+    compmarca->set_popup_completion(true);
+    compmarca2->set_popup_completion(true);
+    compmodelo->set_popup_completion(true);
+    compmodelo2->set_popup_completion(true);
+    compcor->set_popup_completion(true);
+    compcor2->set_popup_completion(true);
+    compestado->set_popup_completion(true);
+    compcombustivel->set_popup_completion(true);
+
+    compmarca->set_minimum_key_length(1);
+    compmarca2->set_minimum_key_length(1);
+    compmodelo->set_minimum_key_length(1);
+    compmodelo2->set_minimum_key_length(1);
+    compcor->set_minimum_key_length(1);
+    compcor2->set_minimum_key_length(1);
+    compestado->set_minimum_key_length(1);
+    compcombustivel->set_minimum_key_length(1);
+
+    set<string> marcas, modelos;
+    vector<string> cores = {"Preto", "Branco", "Cinzento", "Azul", "Vermelho", "Verde", "Amarelo", "Roxo", "Laranja", "Castanho", "Prata", "Dourado", "Bege", "Rosa", "Outra"};
+    vector<string> estados = {"Usado", "Novo"};
+    vector<string> combustiveis = {"Gasolina", "Diesel", "Eletrico", "Hibrido"};
+
+    for (int i = 0; i < numerodecarrosatual; i++) {
+        marcas.insert(c[i].marca);
+        modelos.insert(c[i].modelo);
+    }
+
+    for (const auto& marca : marcas) {
+        Gtk::TreeModel::Row row = *(modelmarca->append());
+        row[m_Columns.m_col_name] = marca;
+    }
+
+    for (const auto& modelo : modelos) {
+        Gtk::TreeModel::Row row = *(modelmodelo->append());
+        row[m_Columns.m_col_name] = modelo;
+    }
+
+    for (const auto& cor : cores) {
+        Gtk::TreeModel::Row row = *(modelcor->append());
+        row[m_Columns.m_col_name] = cor;
+    }
+
+    for (const auto& estado : estados) {
+        Gtk::TreeModel::Row row = *(modelestado->append());
+        row[m_Columns.m_col_name] = estado;
+    }
+
+    for (const auto& combustivel : combustiveis) {
+        Gtk::TreeModel::Row row = *(modelcombustivel->append());
+        row[m_Columns.m_col_name] = combustivel;
+    }
+
+    compmarca->set_text_column(m_Columns.m_col_name);
+    compmarca2->set_text_column(m_Columns.m_col_name);
+    compmodelo->set_text_column(m_Columns.m_col_name);
+    compmodelo2->set_text_column(m_Columns.m_col_name);
+    compcor->set_text_column(m_Columns.m_col_name);
+    compcor2->set_text_column(m_Columns.m_col_name);
+    compestado->set_text_column(m_Columns.m_col_name);
+    compcombustivel->set_text_column(m_Columns.m_col_name);
 
 #endif
 
