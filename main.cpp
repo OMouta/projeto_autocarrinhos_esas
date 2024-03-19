@@ -965,37 +965,49 @@ int main(int argc, char **argv)
         infoOutFile.close();
     });
 
-    mudarPassebtn.signal_clicked().connect([&passeAntiga, &passeNova]
-    {
-        ifstream info("dados/utilizadores" + utilizadoratual + "/info.txt");
-        string linha, password;
-        bool tem = false;
+    mudarPassebtn.signal_clicked().connect([&passeAntiga, &passeNova, &passeConfirm, utilizadoratual, &passwordEntry]() {
+    // Obter a palavra-passe atual do utilizador do campo passwordEntry
+    std::string senhaAtual = passwordEntry.get_text();
 
-        while (getline(info, linha))
-        {
-            //encontrar a passe do utilizador
-            size_t start = linha.find("Palavra-passe: ");
+    // Verificar se o nome de utilizador existe
+    std::string utilizadorPath = "dados/utilizadores/" + utilizadoratual + "/info.txt";
+    if (pathExists(utilizadorPath)) {
+        std::ifstream inputFile(utilizadorPath);
+        std::ofstream outputFile("dados/utilizadores/temp_info.txt");
 
-            // Encontrar a palavra passe no ficheiro
-            if (start != std::string::npos)
-            {
-                // Obter a senha depois da string "palavra passe: "
-                password = linha.substr(start + 15);
+        if (inputFile.is_open() && outputFile.is_open()) {
+            std::string linha;
 
-                // remover o carater da linha nova ao final da senha
-                password.erase(password.find("\n"));
-
-                // Verificar se a palavra passe inserida é igual à palavra passe salvada
-                if (passeAntiga.get_text() == password)
-                {
-                    tem = true;
+            // Ler o arquivo linha por linha
+            while (std::getline(inputFile, linha)) {
+                if (linha.find("Palavra-passe: ") != std::string::npos) {
+                    outputFile << "Palavra-passe: " << passeNova.get_text() << "\n";
+                } else {
+                    outputFile << linha << "\n";
                 }
             }
-        }
 
-        // fechar o ficheiro
-        info.close();
-    });
+            inputFile.close();
+            outputFile.close();
+
+            // Remover o arquivo original e renomear o arquivo temporário
+            remove(utilizadorPath.c_str());
+            rename("dados/utilizadores/temp_info.txt", utilizadorPath.c_str());
+
+            Gtk::MessageDialog dialog("Palavra passe atualizada.", false, Gtk::MESSAGE_ERROR);
+            dialog.run();
+        } else {
+            Gtk::MessageDialog dialog("Erro ao abrir os arquivos para atualizar a palavra-passe.", false, Gtk::MESSAGE_ERROR);
+            dialog.set_secondary_text("Por favor, tente novamente.");
+            dialog.run();
+        }
+    }
+
+    // Mostrar mensagem de erro genérica
+    Gtk::MessageDialog dialog("Ocorreu um erro ao alterar a palavra-passe.", false, Gtk::MESSAGE_ERROR);
+    dialog.set_secondary_text("Por favor, tente novamente.");
+    dialog.run();
+});
 
     //Adicionar os filtros e os carros ao grid
     gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
