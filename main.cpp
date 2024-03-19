@@ -1060,18 +1060,10 @@ int main(int argc, char **argv)
             {
                 temadmuser = true;
             }
-            else
-            {
-                temadmuser = false;
-            }
 
             if(linha2 == passwordEntry.get_text())
             {
                 temadmpass = true;
-            }
-            else
-            {
-                temadmpass = false;
             }
         }
 
@@ -1386,7 +1378,7 @@ int main(int argc, char **argv)
 
 #endif
 
-#if 1 // First Time Install
+#if 1 // Para a conta do admin
     Box ftiBox;
     Label ftiLabel("Bem-vindo ao Autocarrinhos ESAS!"), ftiLabel2("Começe por criar uma conta de administrador");
     Entry ftiUser, ftiPass;
@@ -1438,10 +1430,10 @@ int main(int argc, char **argv)
     appWindow.show_all();
 
     for(int i = 0; i < argc; i++) {
-        if(std::string(argv[i]) == "-fti") {
+        if(string(argv[i]) == "-fti") {
             stack.set_visible_child("fti");
         }
-        else if(std::string(argv[i]) == "-admin") {
+        else if(string(argv[i]) == "-admin") {
             stack.set_visible_child("dashboardadmin");
         }
         else
