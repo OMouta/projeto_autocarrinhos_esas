@@ -909,11 +909,13 @@ int main(int argc, char **argv)
     passeNova.set_placeholder_text("Insira a palavra-passe nova");
     passeConfirm.set_placeholder_text("Confirme a palavra passe");
 
+    mudarPasseErro.set_name("erro");
+
     mudarPasse.pack_start(passeAntiga, PACK_SHRINK, 5);
     mudarPasse.pack_start(passeNova, PACK_SHRINK, 5);
     mudarPasse.pack_start(passeConfirm, PACK_SHRINK, 5);
     mudarPasse.pack_start(mudarPasseErro, PACK_SHRINK, 5);
-    mudarPasse.pack_start(mudarPasse, PACK_SHRINK, 5);
+    mudarPasse.pack_start(mudarPassebtn, PACK_SHRINK, 5);
 
     //Salvar as definições da conta quando dar click no botão
     salvarDef.signal_clicked().connect([&emailEntry, &contactoEntry, &nomeEntry, &moradaEntry, &nifEntry, &cartaoEntry, &cvvEntry]
@@ -967,49 +969,48 @@ int main(int argc, char **argv)
         infoOutFile.close();
     });
 
-    mudarPassebtn.signal_clicked().connect([&passeAntiga, &passeNova, &passeConfirm, utilizadoratual, &passwordEntry]() {
-    // Obter a palavra-passe atual do utilizador do campo passwordEntry
-    std::string senhaAtual = passwordEntry.get_text();
+    mudarPassebtn.signal_clicked().connect([&passeAntiga, &passeNova, &passeConfirm, &passwordEntry, &mudarPasseErro]() {
+        ifstream infoIn("dados/utilizadores/" + utilizadoratual + "/info.txt");
+        stringstream infoOut;
+        string linha;
 
-    // Verificar se o nome de utilizador existe
-    std::string utilizadorPath = "dados/utilizadores/" + utilizadoratual + "/info.txt";
-    if (pathExists(utilizadorPath)) {
-        std::ifstream inputFile(utilizadorPath);
-        std::ofstream outputFile("dados/utilizadores/temp_info.txt");
+        mudarPasseErro.set_text("");
 
-        if (inputFile.is_open() && outputFile.is_open()) {
-            std::string linha;
-
-            // Ler o arquivo linha por linha
-            while (std::getline(inputFile, linha)) {
-                if (linha.find("Palavra-passe: ") != std::string::npos) {
-                    outputFile << "Palavra-passe: " << passeNova.get_text() << "\n";
-                } else {
-                    outputFile << linha << "\n";
+        // Read the file line by line
+        while(getline(infoIn, linha))
+        {
+            if (linha.find("Palavra-passe: ") != string::npos)
+            {
+                if (linha.find(passeAntiga.get_text()) != string::npos)
+                {
+                    if (passeNova.get_text() == passeConfirm.get_text())
+                    {
+                        linha = "Palavra-passe: " + passeNova.get_text();
+                        mudarPasseErro.set_text("");
+                    }
+                    else
+                    {
+                        mudarPasseErro.set_text("As palavras-passe não coincidem");
+                    }
+                }
+                else
+                {
+                    mudarPasseErro.set_text("Palavra-passe antiga incorreta");
                 }
             }
 
-            inputFile.close();
-            outputFile.close();
-
-            // Remover o arquivo original e renomear o arquivo temporário
-            remove(utilizadorPath.c_str());
-            rename("dados/utilizadores/temp_info.txt", utilizadorPath.c_str());
-
-            Gtk::MessageDialog dialog("Palavra passe atualizada.", false, Gtk::MESSAGE_ERROR);
-            dialog.run();
-        } else {
-            Gtk::MessageDialog dialog("Erro ao abrir os arquivos para atualizar a palavra-passe.", false, Gtk::MESSAGE_ERROR);
-            dialog.set_secondary_text("Por favor, tente novamente.");
-            dialog.run();
+            // Write the (possibly modified) line to the stringstream
+            infoOut << linha << "\n";
         }
-    }
 
-    // Mostrar mensagem de erro genérica
-    Gtk::MessageDialog dialog("Ocorreu um erro ao alterar a palavra-passe.", false, Gtk::MESSAGE_ERROR);
-    dialog.set_secondary_text("Por favor, tente novamente.");
-    dialog.run();
-});
+        // Close the input file
+        infoIn.close();
+
+        // Open the output file and write the modified content to it
+        ofstream infoOutFile("dados/utilizadores/" + utilizadoratual + "/info.txt");
+        infoOutFile << infoOut.str();
+        infoOutFile.close();
+    });
 
     //Adicionar os filtros e os carros ao grid
     gridCarros.pack_start(FiltrosBar, PACK_SHRINK);
