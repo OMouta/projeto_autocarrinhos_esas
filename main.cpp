@@ -1046,7 +1046,34 @@ int main(int argc, char **argv)
     {
         
         //caminho temporario para os dados do utilizador
-        string temppath = "dados/utilizadores/" + usernameEntry.get_text(); 
+        string temppath = "dados/utilizadores/" + usernameEntry.get_text();
+
+        string linha2;
+        bool temadmuser = false, temadmpass = false;
+
+        //verificar se o utilizador é admin
+        ifstream info2("dados/utilizadores/contaadmin.txt");
+
+        while(getline(info2, linha2))
+        {
+            if(linha2 == usernameEntry.get_text())
+            {
+                temadmuser = true;
+            }
+            else
+            {
+                temadmuser = false;
+            }
+
+            if(linha2 == passwordEntry.get_text())
+            {
+                temadmpass = true;
+            }
+            else
+            {
+                temadmpass = false;
+            }
+        }
 
         //verificar se o utilizador existe
         if(pathExists(temppath) && usernameEntry.get_text() != "" && passwordEntry.get_text() != "")
@@ -1074,8 +1101,6 @@ int main(int argc, char **argv)
 
                 utilizadoratual = usernameEntry.get_text();
 
-                cout << "Utilizador atual: " << utilizadoratual << endl;
-
                 // resetar os campos
                 erro.set_text("");
                 usernameEntry.set_text("");
@@ -1090,12 +1115,10 @@ int main(int argc, char **argv)
             //fechar o ficheiro
             info.close();
         }
-        else if (usernameEntry.get_text() == "admin" && passwordEntry.get_text() == "admin")
+        else if (temadmuser && temadmpass)
         {
             //mudar para a pagina da dashboard e meter o nome do utilizador na label
             stack.set_visible_child("dashboardadmin");
-
-            cout << "Conta de administrador" << endl;
 
             // resetar os campos
             erro.set_text("");
@@ -1110,7 +1133,6 @@ int main(int argc, char **argv)
             {
                 utilizadores += entry.path().filename().string() + "\n";
             }
-            cout << utilizadores.c_str() << endl;
         }
         else if (usernameEntry.get_text() == "Debugshowcarros")
         {
@@ -1120,7 +1142,6 @@ int main(int argc, char **argv)
             {
                 carros += entry.path().filename().string() + "\n";
             }
-            cout << carros.c_str() << endl;
         }
         else if (usernameEntry.get_text() == "" || passwordEntry.get_text() == "")
         {
@@ -1140,8 +1161,6 @@ int main(int argc, char **argv)
         usernameEntry.set_text("");
         passwordEntry.set_text("");
         stack.set_visible_child("registrar");
-
-        cout << "Mudar para a pagina de registo" << endl;
     });
 
     registerButton2.signal_clicked().connect([&stack, &usernamereg, &passwordreg, &passwordregconfirm, &erroreg, &usernameEntry, &passwordEntry]
@@ -1168,8 +1187,6 @@ int main(int argc, char **argv)
                 passwordreg.set_text("");
                 passwordregconfirm.set_text("");
                 stack.set_visible_child("login");
-
-                cout << "Utilizador criado" << endl;
             }
             else
             {
@@ -1210,23 +1227,17 @@ int main(int argc, char **argv)
         passwordreg.set_text("");
         passwordregconfirm.set_text("");
         stack.set_visible_child("login");
-
-        cout << "Cancelar registo" << endl;
     });
 
     //mudar para a pagina de login
     logoutbuttonuser.signal_clicked().connect([&stack]{ 
         stack.set_visible_child("login");
         utilizadoratual = "";
-
-        cout << "Sair da conta" << endl;
         });
 
     logoutbuttonadmin.signal_clicked().connect([&stack]{ 
         stack.set_visible_child("login");
         utilizadoratual = "";
-
-        cout << "Sair da conta" << endl;
         });
 
 #endif
@@ -1375,11 +1386,69 @@ int main(int argc, char **argv)
 
 #endif
 
+#if 1 // First Time Install
+    Box ftiBox;
+    Label ftiLabel("Bem-vindo ao Autocarrinhos ESAS!"), ftiLabel2("Começe por criar uma conta de administrador");
+    Entry ftiUser, ftiPass;
+    Button ftiButton("Criar conta de administrador");
+    Image ftilogo("assets/logotext-small.png");
+
+    ftiLabel.set_name("title");
+
+    ftiUser.set_placeholder_text("Nome de utilizador");
+    ftiPass.set_placeholder_text("Palavra-passe");
+
+    ftiPass.set_visibility(false);
+
+
+    ftiBox.set_orientation(Orientation::ORIENTATION_VERTICAL);
+
+    ftiBox.pack_start(ftilogo, PACK_SHRINK, 5);
+    ftiBox.pack_start(ftiLabel, PACK_SHRINK, 5);
+    ftiBox.pack_start(ftiLabel2, PACK_SHRINK, 5);
+    ftiBox.pack_start(ftiUser, PACK_SHRINK, 5);
+    ftiBox.pack_start(ftiPass, PACK_SHRINK, 5);
+    ftiBox.pack_start(ftiButton, PACK_SHRINK, 5);
+
+    ftiButton.signal_clicked().connect([&ftiUser, &ftiPass, &stack]
+    {
+        if (ftiUser.get_text() != "" && ftiPass.get_text() != "")
+        {
+            ofstream ficheiro("dados/utilizadores/contaadmin.txt");
+            ficheiro << ftiUser.get_text() << "\n";
+            ficheiro << ftiPass.get_text() << "\n";
+
+            ficheiro.close();
+
+            ftiUser.set_text("");
+            ftiPass.set_text("");
+
+            stack.set_visible_child("dashboardadmin");
+        }
+    });
+
+    stack.add(ftiBox, "fti");
+
+#endif
+
     // alinhamento
     Alignment *align = manage(new Alignment(0.5, 0.5, 0, 0));
     align->add(stack);
     appWindow.add(*align);
     appWindow.show_all();
+
+    for(int i = 0; i < argc; i++) {
+        if(std::string(argv[i]) == "-fti") {
+            stack.set_visible_child("fti");
+        }
+        else if(std::string(argv[i]) == "-admin") {
+            stack.set_visible_child("dashboardadmin");
+        }
+        else
+        {
+            stack.set_visible_child("login");
+        }
+    }
 
     Main::run(appWindow);
     return 0;
