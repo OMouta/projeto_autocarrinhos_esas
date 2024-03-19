@@ -903,6 +903,8 @@ int main(int argc, char **argv)
     Label mudarPasseErro("");
     contentStackUser.add(mudarPasse, "mudarPasse");
 
+    mudarPasse.set_orientation(Orientation::ORIENTATION_VERTICAL);
+
     passeAntiga.set_placeholder_text("Insira a palavra-passe atual");
     passeNova.set_placeholder_text("Insira a palavra-passe nova");
     passeConfirm.set_placeholder_text("Confirme a palavra passe");
