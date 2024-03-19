@@ -336,21 +336,6 @@ void criarcarro(string marca, string modelo, string cor, string combustivel, str
     loadcarrosstruct();
 }
 
-bool temcaracterespecial(string nome) //nao esta a funcionar corretamente
-{
-    for (char c : nome) // percorre a string letra a letra
-    {
-        if (c == '!' || c == '@' || c == '#' || c == '$' || c == '%' || c == '^' || c == '&' || c == '*' || c == '(' || c == ')' || c == '-' || c == '_' || c == '+' || c == '=' || c == '{' || c == '}' || c == '[' || c == ']' || c == ':' || c == ';' || c == '"' || c == '\'' || c == '<' || c == '>' || c == ',' || c == '.' || c == '?' || c == '/' || c == '|' || c == '\\' || c == '`' || c == '~' || c == ' ')
-        {
-            // se encontrar um caracter especial, retorna verdadeiro
-            return true;
-        }
-    }
-
-    // se nao encontrar nenhum caracter especial, retorna falso
-    return false;
-}
-
 int main(int argc, char **argv)
 {
 
@@ -1163,7 +1148,7 @@ int main(int argc, char **argv)
     {
         string usernameEntrytemp = usernameEntry.get_text();
 
-        if((passwordreg.get_text() == passwordregconfirm.get_text()) && (usernamereg.get_text() != "") && (passwordreg.get_text() != "") && (passwordregconfirm.get_text() != "") && (!temcaracterespecial(usernameEntrytemp)))
+        if((passwordreg.get_text() == passwordregconfirm.get_text()) && (usernamereg.get_text() != "") && (passwordreg.get_text() != "") && (passwordregconfirm.get_text() != ""))
         {
             erroreg.set_text("");
 
@@ -1210,10 +1195,6 @@ int main(int argc, char **argv)
             else if(passwordregconfirm.get_text() == "")
             {
                 erroreg.set_text("A confirmação da palavra-passe está vazia");
-            }
-            else if(temcaracterespecial(usernameEntrytemp))
-            {
-                erroreg.set_text("O nome de utilizador não pode conter caracteres especiais");
             }
             else
             {

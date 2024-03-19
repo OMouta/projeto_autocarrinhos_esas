@@ -1,0 +1,8 @@
+Marca: Fiat
+Modelo: Uno
+Cor: Vermelho
+Combustivel: Gasolina
+Estado: Usado
+Ano: 2002
+Preco: 5000
+Imagem: dados/carros/FiatUno2002/420480729751615.png
